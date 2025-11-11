@@ -243,7 +243,7 @@ mod tests {
     #[test]
     fn test_import_new_commands() {
         let storage = create_test_storage();
-        let exporter = Exporter::new(create_test_storage());
+        let _exporter = Exporter::new(create_test_storage());
 
         // Create source storage with commands
         let source_storage = create_test_storage();

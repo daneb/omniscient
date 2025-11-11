@@ -34,7 +34,7 @@ cargo install --path .
 omniscient --version
 ```
 
-#### Via Cargo (Coming Soon)
+#### Via Cargo 
 
 ```bash
 cargo install omniscient
@@ -218,6 +218,47 @@ cargo test
 # Install locally
 cargo install --path .
 ```
+
+## Uninstallation
+
+If you need to uninstall Omniscient:
+
+### Automated Uninstall (Recommended)
+
+```bash
+# Download and run the uninstall script
+curl -sSL https://raw.githubusercontent.com/daneb/omniscient/master/uninstall.sh | bash
+
+# Or if you have the repository cloned
+./uninstall.sh
+```
+
+The script will:
+1. Remove shell hooks from your `~/.zshrc`
+2. Remove the binary from `~/.cargo/bin/omniscient`
+3. Optionally delete your command history data
+4. Create backups before deletion
+
+### Manual Uninstall
+
+```bash
+# 1. Remove shell hooks
+# Edit ~/.zshrc and remove the "# Omniscient" section
+vim ~/.zshrc
+
+# 2. Remove the binary
+cargo uninstall omniscient
+# or manually
+rm ~/.cargo/bin/omniscient
+
+# 3. (Optional) Remove data directory
+rm -rf ~/.omniscient
+
+# 4. Reload shell
+source ~/.zshrc
+```
+
+**Note**: The uninstaller creates backups before deletion. Your data will be backed up to `~/omniscient_backup_*` before removal.
 
 ## License
 

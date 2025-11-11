@@ -1,6 +1,6 @@
 [package]
 name = "omniscient"
-version = "1.0.0"
+version = "1.0.1"
 edition = "2021"
 authors = ["Omniscient Contributors"]
 description = "CLI command history tracker - never forget a command again"
@@ -15,6 +15,9 @@ exclude = [
     ".gitignore",
     "*.md",
     "examples/",
+    "install.sh",
+    "uninstall.sh",
+    "release-tag.sh",
 ]
 
 [dependencies]

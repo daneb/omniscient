@@ -130,9 +130,9 @@ If you're coming from tools like `history`, `atuin`, or `mcfly`:
 
 ## Support & Community
 
-- **Issues**: https://github.com/yourusername/omniscient/issues
-- **Discussions**: https://github.com/yourusername/omniscient/discussions
-- **Documentation**: https://github.com/yourusername/omniscient#readme
+- **Issues**: https://github.com/daneb/omniscient/issues
+- **Discussions**: https://github.com/daneb/omniscient/discussions
+- **Documentation**: https://github.com/daneb/omniscient#readme
 
 ## Credits
 

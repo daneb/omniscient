@@ -53,8 +53,8 @@ _omniscient_precmd() {
     
     if [[ -n "$_OMNISCIENT_START" ]]; then
         local end=$EPOCHREALTIME
-        local duration=$(( (end - _OMNISCIENT_START) * 1000 ))
-        
+        local duration=$(( int((end - _OMNISCIENT_START) * 1000) ))
+
         # Run capture in background to avoid blocking shell
         omniscient capture --exit-code "$exit_code" --duration "$duration" "$cmd" &
         

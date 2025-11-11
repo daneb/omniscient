@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.1] - 2025-11-11
+
+### Added
+- Created `uninstall.sh` script for automated uninstallation
+- Added uninstallation documentation to README
+- Uninstaller creates backups before removing data
+
+### Fixed
+- Fixed floating-point duration bug in Zsh shell hook that caused capture to fail
+- Duration calculation now correctly converts to integer milliseconds using `int()` function
+- Fixed unused variable warning in export tests
+
 ## [1.0.0] - 2025-11-11
 
 ### Added
