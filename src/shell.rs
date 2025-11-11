@@ -56,8 +56,9 @@ _omniscient_precmd() {
         local duration=$(( int((end - _OMNISCIENT_START) * 1000) ))
 
         # Run capture in background to avoid blocking shell
-        omniscient capture --exit-code "$exit_code" --duration "$duration" "$cmd" &
-        
+        # Redirect output and disown to prevent job notifications
+        omniscient capture --exit-code "$exit_code" --duration "$duration" "$cmd" &>/dev/null &!
+
         unset _OMNISCIENT_START
     fi
 }
