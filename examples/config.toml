@@ -1,0 +1,65 @@
+# Omniscient Configuration Example
+# This file shows all available configuration options with their default values
+#
+# Location: ~/.omniscient/config.toml
+# This file is automatically created on first run if it doesn't exist
+
+[storage]
+# Storage backend type (currently only "sqlite" is supported)
+type = "sqlite"
+
+# Path to the SQLite database file
+# Supports tilde (~) expansion for home directory
+path = "~/.omniscient/history.db"
+
+[privacy]
+# List of regex patterns to match and redact in commands
+# Commands containing these patterns will NOT be stored
+redact_patterns = [
+    "password",
+    "token",
+    "secret",
+    "api_key",
+    "apikey",
+]
+
+# Enable or disable redaction
+# When false, all commands are stored (use with caution!)
+enabled = true
+
+[capture]
+# Minimum command duration in milliseconds to capture
+# Commands faster than this will not be stored
+# Set to 0 to capture all commands
+min_duration_ms = 0
+
+# Maximum number of commands to keep in history
+# Oldest commands are removed when this limit is reached
+# Set to a very high number to effectively disable
+max_history_size = 100000
+
+# Example configurations for different use cases:
+
+# [storage]
+# # Use a different database location
+# path = "~/Dropbox/.omniscient/history.db"
+
+# [privacy]
+# # Add more sensitive patterns
+# redact_patterns = [
+#     "password",
+#     "token",
+#     "secret",
+#     "api_key",
+#     "apikey",
+#     "AWS_SECRET",
+#     "credentials",
+#     "auth",
+# ]
+
+# [capture]
+# # Only capture slow commands (useful for performance analysis)
+# min_duration_ms = 100
+#
+# # Keep a smaller history
+# max_history_size = 10000
