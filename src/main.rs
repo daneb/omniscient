@@ -13,8 +13,12 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Commands {
-    /// Initialize shell integration (generates hook code for ~/.zshrc)
-    Init,
+    /// Initialize shell integration (generates hook code)
+    Init {
+        /// Specify shell type (zsh, bash). Auto-detected if not provided.
+        #[arg(long)]
+        shell: Option<String>,
+    },
 
     /// Capture a command (internal use by shell hook)
     Capture {
@@ -92,12 +96,27 @@ fn main() -> Result<()> {
     config.ensure_directories()?;
 
     match cli.command {
-        Commands::Init => {
-            let hook = omniscient::ShellHook::default();
+        Commands::Init { shell } => {
+            use omniscient::ShellType;
+
+            // Determine shell type (manual or auto-detect)
+            let shell_type = if let Some(shell_name) = shell {
+                match shell_name.as_str() {
+                    "zsh" => ShellType::Zsh,
+                    "bash" => ShellType::Bash,
+                    _ => {
+                        eprintln!("Error: Unsupported shell '{}'. Supported shells: zsh, bash", shell_name);
+                        eprintln!("Tip: Omit --shell flag to auto-detect your shell.");
+                        std::process::exit(1);
+                    }
+                }
+            } else {
+                omniscient::ShellHook::detect_shell()?
+            };
+
+            let hook = omniscient::ShellHook::new(shell_type);
             println!("{}", hook.generate());
-            eprintln!("\n# To install, run:");
-            eprintln!("# omniscient init >> ~/.zshrc");
-            eprintln!("# source ~/.zshrc");
+            eprintln!("{}", hook.installation_instructions());
             Ok(())
         }
         Commands::Capture { exit_code, duration, command } => {

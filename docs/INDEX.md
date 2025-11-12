@@ -24,6 +24,7 @@ Located in [`docs/planning/`](planning/):
 - **[Specification](planning/specification.md)** - Original project specification and requirements
 - **[Technical Design](planning/technical-design.md)** - Architecture and design decisions
 - **[Roadmap](planning/roadmap.md)** - Development phases and timeline
+- **[Multi-Shell Support](planning/multi-shell-support.md)** - Bash, Fish, and PowerShell implementation plan
 
 ### Development Progress
 Located in [`docs/development/`](development/):
@@ -81,6 +82,7 @@ Located in [`docs/development/`](development/):
 - **Review releases** → [Release Notes](../RELEASE-NOTES.md)
 - **Check progress** → [Project Summary](development/PROJECT-SUMMARY.md)
 - **Plan features** → [Roadmap](planning/roadmap.md)
+- **Multi-shell support** → [Multi-Shell Support Spec](planning/multi-shell-support.md)
 
 ## 📁 File Organization
 
@@ -98,7 +100,8 @@ omniscient/
 │   ├── planning/               # Planning documents
 │   │   ├── specification.md
 │   │   ├── technical-design.md
-│   │   └── roadmap.md
+│   │   ├── roadmap.md
+│   │   └── multi-shell-support.md
 │   └── development/            # Development docs
 │       ├── PROJECT-SUMMARY.md
 │       ├── PROGRESS.md
@@ -149,5 +152,5 @@ omniscient/
 
 ---
 
-**Last Updated**: 2025-11-11
-**Version**: 1.0.0
+**Last Updated**: 2025-11-12
+**Version**: 1.0.2

@@ -15,6 +15,7 @@
 - 💾 **Portable**: Export/import your history, sync via Git
 - 📈 **Usage Analytics**: Track your most-used commands
 - 🎯 **Simple**: Single binary, minimal configuration
+- 🐚 **Multi-Shell**: Supports Zsh and Bash (Fish coming soon)
 
 ## Quick Start
 
@@ -40,7 +41,9 @@ omniscient --version
 cargo install omniscient
 ```
 
-### Setup (Zsh)
+### Setup
+
+#### Zsh (Default)
 
 ```bash
 # Initialize shell integration
@@ -51,6 +54,33 @@ omniscient init >> ~/.zshrc
 
 # Reload your shell
 source ~/.zshrc
+```
+
+#### Bash
+
+**Note:** Bash requires the [bash-preexec](https://github.com/rcaloras/bash-preexec) library.
+
+```bash
+# 1. Install bash-preexec
+curl -sSL https://github.com/rcaloras/bash-preexec/raw/master/bash-preexec.sh -o ~/.bash-preexec.sh
+
+# 2. Source bash-preexec in your profile
+# For Linux (~/.bashrc):
+echo 'source ~/.bash-preexec.sh' >> ~/.bashrc
+
+# For macOS (~/.bash_profile):
+echo 'source ~/.bash-preexec.sh' >> ~/.bash_profile
+
+# 3. Add Omniscient hook
+# For Linux:
+omniscient init --shell bash >> ~/.bashrc
+
+# For macOS:
+omniscient init --shell bash >> ~/.bash_profile
+
+# 4. Reload your shell
+source ~/.bashrc  # Linux
+source ~/.bash_profile  # macOS
 ```
 
 That's it! Omniscient is now tracking your commands.
