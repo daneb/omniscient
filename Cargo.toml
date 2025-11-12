@@ -1,6 +1,6 @@
 [package]
 name = "omniscient"
-version = "1.0.2"
+version = "1.1.0"
 edition = "2021"
 authors = ["Omniscient Contributors"]
 description = "CLI command history tracker - never forget a command again"

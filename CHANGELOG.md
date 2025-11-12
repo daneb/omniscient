@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2025-11-12
+
+### Added
+- **Bash Support** - Full support for Bash shell alongside Zsh
+  - Implemented `generate_bash()` hook generator
+  - Added `--shell` flag to `omniscient init` command for explicit shell selection
+  - Auto-detection of current shell via `$SHELL` environment variable
+  - Integration with bash-preexec library for preexec/precmd hooks
+  - Command timing using `date +%s%N` (nanosecond precision)
+  - Silent background execution with `& + disown` (Bash equivalent of Zsh's `&!`)
+- Added `ShellType::Bash` to shell type enum
+- Created `examples/bash_hook.sh` reference file
+- Added 6 new Bash-specific tests (81 total tests)
+- Comprehensive Bash installation instructions in README
+- Shell detection method `ShellHook::detect_shell()`
+
+### Changed
+- `omniscient init` now accepts optional `--shell <type>` parameter
+- Updated README with multi-shell setup instructions
+- Added multi-shell support to features list
+
+### Documentation
+- Added Bash setup guide to README with bash-preexec installation
+- Created planning document for multi-shell support strategy
+- Updated examples directory with Bash hook example
+
 ## [1.0.2] - 2025-11-11
 
 ### Fixed
