@@ -106,6 +106,35 @@ omniscient category git
 omniscient stats
 ```
 
+### Search Tips
+
+Omniscient's search handles special characters seamlessly:
+
+```bash
+# Search for IP addresses
+omniscient search "10.104.113.39"
+
+# Search for URLs
+omniscient search "https://api.github.com"
+omniscient search "api.github.com"
+
+# Search for file paths with dots
+omniscient search "./config/settings.yaml"
+omniscient search "../parent/file.txt"
+
+# Search for email addresses
+omniscient search "user@domain.com"
+
+# Search for version numbers
+omniscient search "v1.2.3"
+
+# Search works with or without quotes
+omniscient search 192.168.1.1
+omniscient search "192.168.1.1"
+```
+
+**Note**: All searches use exact phrase matching, so searching for `git commit` will find commands containing that exact phrase, not commands with "git" OR "commit" separately.
+
 ### Export & Sync
 
 ```bash

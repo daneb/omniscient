@@ -14,20 +14,20 @@ impl Storage {
     /// Create a new storage instance, initializing the database if needed
     pub fn new<P: AsRef<Path>>(db_path: P) -> Result<Self> {
         let path = db_path.as_ref();
-        
+
         // Create parent directory if it doesn't exist
         if let Some(parent) = path.parent() {
             std::fs::create_dir_all(parent)?;
         }
 
         let conn = Connection::open(path)?;
-        
+
         // Enable WAL mode for better concurrency
         conn.execute_batch("PRAGMA journal_mode=WAL; PRAGMA synchronous=NORMAL;")?;
-        
+
         let mut storage = Self { conn };
         storage.initialize_schema()?;
-        
+
         Ok(storage)
     }
 
@@ -66,12 +66,12 @@ impl Storage {
             END;
 
             CREATE TRIGGER IF NOT EXISTS commands_ad AFTER DELETE ON commands BEGIN
-                INSERT INTO commands_fts(commands_fts, rowid, command) 
+                INSERT INTO commands_fts(commands_fts, rowid, command)
                 VALUES('delete', old.id, old.command);
             END;
 
             CREATE TRIGGER IF NOT EXISTS commands_au AFTER UPDATE ON commands BEGIN
-                INSERT INTO commands_fts(commands_fts, rowid, command) 
+                INSERT INTO commands_fts(commands_fts, rowid, command)
                 VALUES('delete', old.id, old.command);
                 INSERT INTO commands_fts(rowid, command) VALUES (new.id, new.command);
             END;
@@ -88,7 +88,7 @@ impl Storage {
 
         self.conn.execute(
             r#"
-            INSERT INTO commands (command, timestamp, exit_code, duration_ms, 
+            INSERT INTO commands (command, timestamp, exit_code, duration_ms,
                                  working_dir, category, usage_count, last_used)
             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)
             "#,
@@ -108,9 +108,13 @@ impl Storage {
     }
 
     /// Find a duplicate command (same command text and working directory)
-    pub fn find_duplicate(&self, command: &str, working_dir: &str) -> Result<Option<CommandRecord>> {
+    pub fn find_duplicate(
+        &self,
+        command: &str,
+        working_dir: &str,
+    ) -> Result<Option<CommandRecord>> {
         let mut stmt = self.conn.prepare(
-            "SELECT id, command, timestamp, exit_code, duration_ms, working_dir, 
+            "SELECT id, command, timestamp, exit_code, duration_ms, working_dir,
                     category, usage_count, last_used
              FROM commands
              WHERE command = ?1 AND working_dir = ?2
@@ -139,13 +143,117 @@ impl Storage {
     /// Increment usage count for an existing command
     pub fn increment_usage(&self, id: i64) -> Result<()> {
         let now = Utc::now().to_rfc3339();
-        
+
         self.conn.execute(
             "UPDATE commands SET usage_count = usage_count + 1, last_used = ?1 WHERE id = ?2",
             params![now, id],
         )?;
 
         Ok(())
+    }
+
+    /// Sanitizes a query string for FTS5 search by wrapping it in quotes
+    /// This treats the query as a literal phrase, preventing FTS5 syntax errors
+    /// for special characters like dots, asterisks, etc.
+    ///
+    /// # Arguments
+    /// * `query` - The raw search query from the user
+    ///
+    /// # Returns
+    /// A sanitized query string safe for FTS5 MATCH clause
+    ///
+    /// # Examples
+    /// ```
+    /// use omniscient::Storage;
+    /// # use tempfile::NamedTempFile;
+    /// # let temp_file = NamedTempFile::new().unwrap();
+    /// # let storage = Storage::new(temp_file.path()).unwrap();
+    /// // The sanitize function is private, but here's how it works internally
+    /// let query = "10.104.113.39";
+    /// // Internally sanitized to: "\"10.104.113.39\""
+    /// ```
+    fn sanitize_fts5_query(query: &str) -> String {
+        // Escape existing double quotes by doubling them (FTS5 standard)
+        let escaped = query.replace("\"", "\"\"");
+
+        // Wrap entire query in quotes for literal phrase search
+        // This makes FTS5 treat all special characters as literals
+        format!("\"{}\"", escaped)
+    }
+
+    /// Fallback search using SQL LIKE when FTS5 fails
+    /// This is slower but handles any character combination
+    ///
+    /// # Arguments
+    /// * `text` - The search text
+    /// * `category` - Optional category filter
+    /// * `success_only` - Optional success filter
+    /// * `limit` - Maximum number of results
+    ///
+    /// # Returns
+    /// Vector of matching command records
+    fn search_with_like(
+        &self,
+        text: &str,
+        category: &Option<String>,
+        success_only: &Option<bool>,
+        limit: usize,
+        order_by: &OrderBy,
+    ) -> Result<Vec<CommandRecord>> {
+        let mut sql = String::from(
+            "SELECT id, command, timestamp, exit_code, duration_ms, working_dir,
+                    category, usage_count, last_used
+             FROM commands
+             WHERE command LIKE ?",
+        );
+
+        let mut params: Vec<Box<dyn rusqlite::ToSql>> = vec![Box::new(format!("%{}%", text))];
+
+        // Add category filter
+        if let Some(ref cat) = category {
+            sql.push_str(" AND category = ?");
+            params.push(Box::new(cat.clone()));
+        }
+
+        // Add success filter
+        if let Some(success) = success_only {
+            if *success {
+                sql.push_str(" AND exit_code = 0");
+            } else {
+                sql.push_str(" AND exit_code != 0");
+            }
+        }
+
+        // Add ordering
+        match order_by {
+            OrderBy::Timestamp => sql.push_str(" ORDER BY timestamp DESC"),
+            OrderBy::UsageCount | OrderBy::Relevance => {
+                sql.push_str(" ORDER BY usage_count DESC, timestamp DESC");
+            }
+        }
+
+        sql.push_str(&format!(" LIMIT {}", limit));
+
+        let mut stmt = self.conn.prepare(&sql)?;
+        let param_refs: Vec<&dyn rusqlite::ToSql> = params.iter().map(|p| p.as_ref()).collect();
+
+        let records = stmt
+            .query_map(param_refs.as_slice(), |row| {
+                Ok(CommandRecord {
+                    id: Some(row.get(0)?),
+                    command: row.get(1)?,
+                    timestamp: row.get::<_, String>(2)?.parse().unwrap(),
+                    exit_code: row.get(3)?,
+                    duration_ms: row.get(4)?,
+                    working_dir: row.get(5)?,
+                    category: row.get(6)?,
+                    usage_count: row.get(7)?,
+                    last_used: row.get::<_, String>(8)?.parse().unwrap(),
+                })
+            })?
+            .collect::<std::result::Result<Vec<_>, _>>()?;
+
+        Ok(records)
     }
 
     /// Search commands with various filters
@@ -176,8 +284,10 @@ impl Storage {
 
         // Add text search if provided
         if let Some(ref text) = query.text {
+            // Sanitize query for FTS5 to handle special characters
+            let sanitized = Self::sanitize_fts5_query(text);
             sql.push_str(" AND id IN (SELECT rowid FROM commands_fts WHERE command MATCH ?)");
-            params.push(Box::new(text.clone()));
+            params.push(Box::new(sanitized));
         }
 
         // Add ordering
@@ -192,25 +302,55 @@ impl Storage {
 
         sql.push_str(&format!(" LIMIT {}", query.limit));
 
-        let mut stmt = self.conn.prepare(&sql)?;
-        
-        let param_refs: Vec<&dyn rusqlite::ToSql> = params.iter().map(|p| p.as_ref()).collect();
-        
-        let records = stmt
-            .query_map(param_refs.as_slice(), |row| {
-                Ok(CommandRecord {
-                    id: Some(row.get(0)?),
-                    command: row.get(1)?,
-                    timestamp: row.get::<_, String>(2)?.parse().unwrap(),
-                    exit_code: row.get(3)?,
-                    duration_ms: row.get(4)?,
-                    working_dir: row.get(5)?,
-                    category: row.get(6)?,
-                    usage_count: row.get(7)?,
-                    last_used: row.get::<_, String>(8)?.parse().unwrap(),
-                })
-            })?
-            .collect::<std::result::Result<Vec<_>, _>>()?;
+        // Try FTS5 search first, fall back to LIKE if it fails
+        let stmt_result = self.conn.prepare(&sql);
+
+        let records = match stmt_result {
+            Ok(mut stmt) => {
+                let param_refs: Vec<&dyn rusqlite::ToSql> =
+                    params.iter().map(|p| p.as_ref()).collect();
+
+                let rows_result = stmt.query_map(param_refs.as_slice(), |row| {
+                    Ok(CommandRecord {
+                        id: Some(row.get(0)?),
+                        command: row.get(1)?,
+                        timestamp: row.get::<_, String>(2)?.parse().unwrap(),
+                        exit_code: row.get(3)?,
+                        duration_ms: row.get(4)?,
+                        working_dir: row.get(5)?,
+                        category: row.get(6)?,
+                        usage_count: row.get(7)?,
+                        last_used: row.get::<_, String>(8)?.parse().unwrap(),
+                    })
+                });
+
+                match rows_result {
+                    Ok(rows) => rows.collect::<std::result::Result<Vec<_>, _>>()?,
+                    Err(_) if query.text.is_some() => {
+                        // FTS5 query failed, fall back to LIKE search
+                        self.search_with_like(
+                            query.text.as_ref().unwrap(),
+                            &query.category,
+                            &query.success_only,
+                            query.limit,
+                            &query.order_by,
+                        )?
+                    }
+                    Err(e) => return Err(e.into()),
+                }
+            }
+            Err(_) if query.text.is_some() => {
+                // FTS5 prepare failed, fall back to LIKE search
+                self.search_with_like(
+                    query.text.as_ref().unwrap(),
+                    &query.category,
+                    &query.success_only,
+                    query.limit,
+                    &query.order_by,
+                )?
+            }
+            Err(e) => return Err(e.into()),
+        };
 
         Ok(records)
     }
@@ -257,9 +397,9 @@ impl Storage {
     /// Get statistics about the command history
     pub fn get_stats(&self) -> Result<Stats> {
         // Total commands
-        let total_commands: usize = self
-            .conn
-            .query_row("SELECT COUNT(*) FROM commands", [], |row| row.get(0))?;
+        let total_commands: usize =
+            self.conn
+                .query_row("SELECT COUNT(*) FROM commands", [], |row| row.get(0))?;
 
         // Successful commands
         let successful_commands: usize = self.conn.query_row(
@@ -273,7 +413,7 @@ impl Storage {
 
         // Commands by category
         let mut stmt = self.conn.prepare(
-            "SELECT category, COUNT(*) as count FROM commands 
+            "SELECT category, COUNT(*) as count FROM commands
              GROUP BY category ORDER BY count DESC",
         )?;
 
@@ -421,22 +561,163 @@ mod tests {
     #[test]
     fn test_search_by_category() {
         let storage = create_test_storage();
-        
-        storage.insert(&create_test_command("git status", "git", 0)).unwrap();
-        storage.insert(&create_test_command("git commit", "git", 0)).unwrap();
-        storage.insert(&create_test_command("docker ps", "docker", 0)).unwrap();
+
+        storage
+            .insert(&create_test_command("git status", "git", 0))
+            .unwrap();
+        storage
+            .insert(&create_test_command("git commit", "git", 0))
+            .unwrap();
+        storage
+            .insert(&create_test_command("docker ps", "docker", 0))
+            .unwrap();
 
         let git_commands = storage.get_by_category("git", 10).unwrap();
         assert_eq!(git_commands.len(), 2);
     }
 
     #[test]
+    fn test_sanitize_fts5_query_simple() {
+        let result = Storage::sanitize_fts5_query("hello world");
+        assert_eq!(result, "\"hello world\"");
+    }
+
+    #[test]
+    fn test_sanitize_fts5_query_with_dots() {
+        let result = Storage::sanitize_fts5_query("10.104.113.39");
+        assert_eq!(result, "\"10.104.113.39\"");
+    }
+
+    #[test]
+    fn test_sanitize_fts5_query_with_quotes() {
+        let result = Storage::sanitize_fts5_query("grep \"pattern\"");
+        assert_eq!(result, "\"grep \"\"pattern\"\"\"");
+    }
+
+    #[test]
+    fn test_sanitize_fts5_query_with_asterisk() {
+        let result = Storage::sanitize_fts5_query("ls *.txt");
+        assert_eq!(result, "\"ls *.txt\"");
+    }
+
+    #[test]
+    fn test_sanitize_fts5_query_url() {
+        let result = Storage::sanitize_fts5_query("https://example.com");
+        assert_eq!(result, "\"https://example.com\"");
+    }
+
+    #[test]
+    fn test_search_with_ip_address() {
+        let storage = create_test_storage();
+
+        // Insert a command with an IP address
+        let record = create_test_command("ssh user@10.104.113.39", "network", 0);
+        storage.insert(&record).unwrap();
+
+        // Search for the IP address
+        let query = SearchQuery {
+            text: Some("10.104.113.39".to_string()),
+            category: None,
+            success_only: None,
+            limit: 10,
+            order_by: OrderBy::Relevance,
+        };
+
+        let results = storage.search(&query).unwrap();
+        assert_eq!(results.len(), 1);
+        assert!(results[0].command.contains("10.104.113.39"));
+    }
+
+    #[test]
+    fn test_search_with_url() {
+        let storage = create_test_storage();
+
+        let record = create_test_command("curl https://api.github.com/users/daneb", "network", 0);
+        storage.insert(&record).unwrap();
+
+        let query = SearchQuery {
+            text: Some("api.github.com".to_string()),
+            category: None,
+            success_only: None,
+            limit: 10,
+            order_by: OrderBy::Relevance,
+        };
+
+        let results = storage.search(&query).unwrap();
+        assert_eq!(results.len(), 1);
+    }
+
+    #[test]
+    fn test_search_with_file_path() {
+        let storage = create_test_storage();
+
+        let record = create_test_command("cat ./config/settings.yaml", "file", 0);
+        storage.insert(&record).unwrap();
+
+        let query = SearchQuery {
+            text: Some("./config/settings.yaml".to_string()),
+            category: None,
+            success_only: None,
+            limit: 10,
+            order_by: OrderBy::Relevance,
+        };
+
+        let results = storage.search(&query).unwrap();
+        assert_eq!(results.len(), 1);
+    }
+
+    #[test]
+    fn test_search_with_multiple_special_chars() {
+        let storage = create_test_storage();
+
+        let record = create_test_command("scp file.txt user@host.com:/path/to/dest", "network", 0);
+        storage.insert(&record).unwrap();
+
+        let query = SearchQuery {
+            text: Some("user@host.com".to_string()),
+            category: None,
+            success_only: None,
+            limit: 10,
+            order_by: OrderBy::Relevance,
+        };
+
+        let results = storage.search(&query).unwrap();
+        assert_eq!(results.len(), 1);
+    }
+
+    #[test]
+    fn test_search_empty_query_still_works() {
+        let storage = create_test_storage();
+
+        let record = create_test_command("ls -la", "file", 0);
+        storage.insert(&record).unwrap();
+
+        // Search without text (should use other filters)
+        let query = SearchQuery {
+            text: None,
+            category: Some("file".to_string()),
+            success_only: None,
+            limit: 10,
+            order_by: OrderBy::Timestamp,
+        };
+
+        let results = storage.search(&query).unwrap();
+        assert_eq!(results.len(), 1);
+    }
+
+    #[test]
     fn test_get_stats() {
         let storage = create_test_storage();
-        
-        storage.insert(&create_test_command("success1", "git", 0)).unwrap();
-        storage.insert(&create_test_command("success2", "docker", 0)).unwrap();
-        storage.insert(&create_test_command("failure", "git", 1)).unwrap();
+
+        storage
+            .insert(&create_test_command("success1", "git", 0))
+            .unwrap();
+        storage
+            .insert(&create_test_command("success2", "docker", 0))
+            .unwrap();
+        storage
+            .insert(&create_test_command("failure", "git", 1))
+            .unwrap();
 
         let stats = storage.get_stats().unwrap();
         assert_eq!(stats.total_commands, 3);

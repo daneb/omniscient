@@ -18,7 +18,7 @@ pub struct StorageConfig {
     /// Storage type (currently only "sqlite" is supported)
     #[serde(rename = "type")]
     pub storage_type: String,
-    
+
     /// Path to the database file
     pub path: String,
 }
@@ -28,7 +28,7 @@ pub struct StorageConfig {
 pub struct PrivacyConfig {
     /// List of regex patterns to redact
     pub redact_patterns: Vec<String>,
-    
+
     /// Whether redaction is enabled
     pub enabled: bool,
 }
@@ -38,7 +38,7 @@ pub struct PrivacyConfig {
 pub struct CaptureConfig {
     /// Minimum command duration to capture (ms)
     pub min_duration_ms: i64,
-    
+
     /// Maximum number of commands to keep in history
     pub max_history_size: usize,
 }
@@ -153,13 +153,11 @@ impl Config {
 #[cfg(test)]
 mod tests {
     use super::*;
-    
-    
 
     #[test]
     fn test_default_config() {
         let config = Config::default();
-        
+
         assert_eq!(config.storage.storage_type, "sqlite");
         assert_eq!(config.storage.path, "~/.omniscient/history.db");
         assert!(config.privacy.enabled);
@@ -172,7 +170,7 @@ mod tests {
     fn test_config_serialization() {
         let config = Config::default();
         let toml_string = toml::to_string(&config).unwrap();
-        
+
         assert!(toml_string.contains("[storage]"));
         assert!(toml_string.contains("[privacy]"));
         assert!(toml_string.contains("[capture]"));
@@ -196,7 +194,7 @@ mod tests {
         "#;
 
         let config: Config = toml::from_str(toml_string).unwrap();
-        
+
         assert_eq!(config.storage.storage_type, "sqlite");
         assert_eq!(config.privacy.redact_patterns.len(), 2);
         assert_eq!(config.capture.min_duration_ms, 100);
@@ -206,7 +204,7 @@ mod tests {
     #[test]
     fn test_expand_path_with_tilde() {
         let config = Config::default();
-        
+
         let expanded = config.expand_path("~/test/path").unwrap();
         assert!(!expanded.to_string_lossy().contains('~'));
         assert!(expanded.to_string_lossy().ends_with("test/path"));
@@ -215,7 +213,7 @@ mod tests {
     #[test]
     fn test_expand_path_without_tilde() {
         let config = Config::default();
-        
+
         let expanded = config.expand_path("/absolute/path").unwrap();
         assert_eq!(expanded, PathBuf::from("/absolute/path"));
     }
@@ -224,8 +222,10 @@ mod tests {
     fn test_database_path_expansion() {
         let config = Config::default();
         let db_path = config.database_path().unwrap();
-        
+
         assert!(!db_path.to_string_lossy().contains('~'));
-        assert!(db_path.to_string_lossy().ends_with(".omniscient/history.db"));
+        assert!(db_path
+            .to_string_lossy()
+            .ends_with(".omniscient/history.db"));
     }
 }

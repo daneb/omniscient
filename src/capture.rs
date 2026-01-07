@@ -21,12 +21,12 @@ impl CommandCapture {
     pub fn new(config: Config) -> Result<Self> {
         let db_path = config.database_path()?;
         let storage = Storage::new(db_path)?;
-        
+
         let redactor = RedactionEngine::new(
             config.privacy.redact_patterns.clone(),
             config.privacy.enabled,
         )?;
-        
+
         let categorizer = Categorizer::new();
 
         Ok(Self {
@@ -38,12 +38,7 @@ impl CommandCapture {
     }
 
     /// Capture a command and store it
-    pub fn capture(
-        &self,
-        command: &str,
-        exit_code: i32,
-        duration_ms: i64,
-    ) -> Result<()> {
+    pub fn capture(&self, command: &str, exit_code: i32, duration_ms: i64) -> Result<()> {
         // Skip if command is empty or whitespace only
         let command = command.trim();
         if command.is_empty() {
@@ -57,7 +52,7 @@ impl CommandCapture {
 
         // Check if command should be redacted
         let processed_command = self.redactor.redact(command);
-        
+
         // If redacted, we don't want to store any information
         if processed_command == "[REDACTED]" {
             return Ok(());
@@ -72,7 +67,10 @@ impl CommandCapture {
         let category = self.categorizer.categorize(&processed_command);
 
         // Check if this command already exists
-        if let Some(existing) = self.storage.find_duplicate(&processed_command, &working_dir)? {
+        if let Some(existing) = self
+            .storage
+            .find_duplicate(&processed_command, &working_dir)?
+        {
             // Update usage count
             self.storage.increment_usage(existing.id.unwrap())?;
         } else {
@@ -179,7 +177,10 @@ mod tests {
         let docker_cmd = commands.iter().find(|c| c.command == "docker ps").unwrap();
         assert_eq!(docker_cmd.category, "docker");
 
-        let npm_cmd = commands.iter().find(|c| c.command == "npm install").unwrap();
+        let npm_cmd = commands
+            .iter()
+            .find(|c| c.command == "npm install")
+            .unwrap();
         assert_eq!(npm_cmd.category, "package");
     }
 
@@ -222,7 +223,7 @@ mod tests {
 
         let stats = capture.stats().unwrap();
         assert_eq!(stats.total_commands, 1);
-        
+
         let commands = capture.storage.get_recent(10).unwrap();
         assert_eq!(commands[0].command, "slow command");
     }

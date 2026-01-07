@@ -105,7 +105,10 @@ fn main() -> Result<()> {
                     "zsh" => ShellType::Zsh,
                     "bash" => ShellType::Bash,
                     _ => {
-                        eprintln!("Error: Unsupported shell '{}'. Supported shells: zsh, bash", shell_name);
+                        eprintln!(
+                            "Error: Unsupported shell '{}'. Supported shells: zsh, bash",
+                            shell_name
+                        );
                         eprintln!("Tip: Omit --shell flag to auto-detect your shell.");
                         std::process::exit(1);
                     }
@@ -119,16 +122,20 @@ fn main() -> Result<()> {
             eprintln!("{}", hook.installation_instructions());
             Ok(())
         }
-        Commands::Capture { exit_code, duration, command } => {
+        Commands::Capture {
+            exit_code,
+            duration,
+            command,
+        } => {
             // Create capture instance
             let capture = omniscient::CommandCapture::new(config)?;
-            
+
             // Capture the command (errors are silently ignored to not break shell)
             if let Err(e) = capture.capture(&command, exit_code, duration) {
                 // Log error but don't fail (shell must continue working)
                 eprintln!("omniscient: capture error: {}", e);
             }
-            
+
             Ok(())
         }
         Commands::Search { query, limit } => {
@@ -145,18 +152,23 @@ fn main() -> Result<()> {
             let results = storage.search(&search_query)?;
 
             if results.is_empty() {
-                println!("No commands found matching '{}'", search_query.text.as_ref().unwrap());
+                println!(
+                    "No commands found matching '{}'",
+                    search_query.text.as_ref().unwrap()
+                );
                 return Ok(());
             }
 
             println!("\nFound {} matching command(s):\n", results.len());
             for cmd in results {
-                println!("[{}] {} {}",
+                println!(
+                    "[{}] {} {}",
                     cmd.timestamp.format("%Y-%m-%d %H:%M:%S"),
                     cmd.status_symbol(),
                     cmd.command
                 );
-                println!("  Category: {} | Duration: {} | Usage: {} times | Dir: {}",
+                println!(
+                    "  Category: {} | Duration: {} | Usage: {} times | Dir: {}",
                     cmd.category,
                     cmd.duration_display(),
                     cmd.usage_count,
@@ -178,12 +190,14 @@ fn main() -> Result<()> {
 
             println!("\nMost recent {} command(s):\n", results.len());
             for cmd in results {
-                println!("[{}] {} {}",
+                println!(
+                    "[{}] {} {}",
                     cmd.timestamp.format("%Y-%m-%d %H:%M:%S"),
                     cmd.status_symbol(),
                     cmd.command
                 );
-                println!("  Category: {} | Duration: {} | Usage: {} times",
+                println!(
+                    "  Category: {} | Duration: {} | Usage: {} times",
                     cmd.category,
                     cmd.duration_display(),
                     cmd.usage_count
@@ -204,12 +218,14 @@ fn main() -> Result<()> {
 
             println!("\nTop {} most frequently used command(s):\n", results.len());
             for (index, cmd) in results.iter().enumerate() {
-                println!("{}. {} (used {} times)",
+                println!(
+                    "{}. {} (used {} times)",
                     index + 1,
                     cmd.command,
                     cmd.usage_count
                 );
-                println!("   Category: {} | Last used: {} | Avg duration: {}",
+                println!(
+                    "   Category: {} | Last used: {} | Avg duration: {}",
                     cmd.category,
                     cmd.last_used.format("%Y-%m-%d %H:%M:%S"),
                     cmd.duration_display()
@@ -228,14 +244,20 @@ fn main() -> Result<()> {
                 return Ok(());
             }
 
-            println!("\nCommands in category '{}' ({} found):\n", name, results.len());
+            println!(
+                "\nCommands in category '{}' ({} found):\n",
+                name,
+                results.len()
+            );
             for cmd in results {
-                println!("[{}] {} {}",
+                println!(
+                    "[{}] {} {}",
                     cmd.last_used.format("%Y-%m-%d %H:%M:%S"),
                     cmd.status_symbol(),
                     cmd.command
                 );
-                println!("  Used {} times | Duration: {} | Dir: {}",
+                println!(
+                    "  Used {} times | Duration: {} | Dir: {}",
                     cmd.usage_count,
                     cmd.duration_display(),
                     cmd.working_dir
@@ -252,11 +274,13 @@ fn main() -> Result<()> {
             println!("\n=== Omniscient Command History Statistics ===\n");
 
             println!("Total Commands: {}", stats.total_commands);
-            println!("Successful: {} ({:.1}%)",
+            println!(
+                "Successful: {} ({:.1}%)",
                 stats.successful_commands,
                 stats.success_rate()
             );
-            println!("Failed: {} ({:.1}%)",
+            println!(
+                "Failed: {} ({:.1}%)",
                 stats.failed_commands,
                 100.0 - stats.success_rate()
             );
@@ -270,7 +294,10 @@ fn main() -> Result<()> {
                 let days = duration.num_days();
                 if days > 0 {
                     println!("  Tracking for:  {} days", days);
-                    println!("  Avg per day:   {:.1} commands", stats.total_commands as f64 / days as f64);
+                    println!(
+                        "  Avg per day:   {:.1} commands",
+                        stats.total_commands as f64 / days as f64
+                    );
                 }
             }
 
@@ -278,10 +305,9 @@ fn main() -> Result<()> {
                 println!("\nCommands by Category:");
                 for cat_stat in &stats.by_category {
                     let percentage = (cat_stat.count as f64 / stats.total_commands as f64) * 100.0;
-                    println!("  {:12} {:5} ({:.1}%)",
-                        cat_stat.category,
-                        cat_stat.count,
-                        percentage
+                    println!(
+                        "  {:12} {:5} ({:.1}%)",
+                        cat_stat.category, cat_stat.count, percentage
                     );
                 }
             }
@@ -327,7 +353,8 @@ fn main() -> Result<()> {
             println!("Importing command history from {}...", file);
 
             // Use PreserveHigher strategy by default (keeps the higher usage count)
-            let importer = omniscient::Importer::new(storage, omniscient::ImportStrategy::PreserveHigher);
+            let importer =
+                omniscient::Importer::new(storage, omniscient::ImportStrategy::PreserveHigher);
 
             match importer.import(&file) {
                 Ok(stats) => {
@@ -347,14 +374,22 @@ fn main() -> Result<()> {
         }
         Commands::Config => {
             println!("Configuration:");
-            println!("  Storage: {} at {}", config.storage.storage_type, config.storage.path);
-            println!("  Privacy: {} (patterns: {})", 
-                if config.privacy.enabled { "enabled" } else { "disabled" },
+            println!(
+                "  Storage: {} at {}",
+                config.storage.storage_type, config.storage.path
+            );
+            println!(
+                "  Privacy: {} (patterns: {})",
+                if config.privacy.enabled {
+                    "enabled"
+                } else {
+                    "disabled"
+                },
                 config.privacy.redact_patterns.len()
             );
-            println!("  Capture: min_duration={}ms, max_history={}", 
-                config.capture.min_duration_ms,
-                config.capture.max_history_size
+            println!(
+                "  Capture: min_duration={}ms, max_history={}",
+                config.capture.min_duration_ms, config.capture.max_history_size
             );
             Ok(())
         }

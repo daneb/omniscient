@@ -97,7 +97,10 @@ mod tests {
         assert_eq!(err.to_string(), "Configuration error: test config error");
 
         let err = OmniscientError::capture("failed to parse command");
-        assert_eq!(err.to_string(), "Failed to capture command: failed to parse command");
+        assert_eq!(
+            err.to_string(),
+            "Failed to capture command: failed to parse command"
+        );
     }
 
     #[test]
@@ -112,7 +115,7 @@ mod tests {
         fn returns_result() -> Result<i32> {
             Ok(42)
         }
-        
+
         assert_eq!(returns_result().unwrap(), 42);
     }
 }

@@ -1,6 +1,6 @@
+use crate::Result;
 /// Shell integration - generates hooks for different shells
 use std::fmt;
-use crate::Result;
 
 /// Supported shell types
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -237,7 +237,7 @@ mod tests {
 
         // Should check if timer was set
         assert!(code.contains("if [[ -n \"$_OMNISCIENT_START\" ]]"));
-        
+
         // Should clean up timer
         assert!(code.contains("unset _OMNISCIENT_START"));
     }

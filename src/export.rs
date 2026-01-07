@@ -117,7 +117,9 @@ impl Importer {
         // Import each command
         for cmd in export_data.commands {
             // Check for duplicates
-            let duplicate = self.storage.find_duplicate(&cmd.command, &cmd.working_dir)?;
+            let duplicate = self
+                .storage
+                .find_duplicate(&cmd.command, &cmd.working_dir)?;
 
             match duplicate {
                 Some(existing) => {
@@ -223,8 +225,12 @@ mod tests {
     #[test]
     fn test_export_with_commands() {
         let storage = create_test_storage();
-        storage.insert(&create_test_command("git status", "git", 5)).unwrap();
-        storage.insert(&create_test_command("docker ps", "docker", 3)).unwrap();
+        storage
+            .insert(&create_test_command("git status", "git", 5))
+            .unwrap();
+        storage
+            .insert(&create_test_command("docker ps", "docker", 3))
+            .unwrap();
 
         let exporter = Exporter::new(storage);
         let temp_file = NamedTempFile::new().unwrap();
@@ -247,8 +253,12 @@ mod tests {
 
         // Create source storage with commands
         let source_storage = create_test_storage();
-        source_storage.insert(&create_test_command("git status", "git", 5)).unwrap();
-        source_storage.insert(&create_test_command("docker ps", "docker", 3)).unwrap();
+        source_storage
+            .insert(&create_test_command("git status", "git", 5))
+            .unwrap();
+        source_storage
+            .insert(&create_test_command("docker ps", "docker", 3))
+            .unwrap();
 
         // Export from source
         let temp_file = NamedTempFile::new().unwrap();
@@ -268,12 +278,18 @@ mod tests {
     #[test]
     fn test_import_with_duplicates_skip() {
         let storage = create_test_storage();
-        storage.insert(&create_test_command("git status", "git", 5)).unwrap();
+        storage
+            .insert(&create_test_command("git status", "git", 5))
+            .unwrap();
 
         // Create export with duplicate command
         let source_storage = create_test_storage();
-        source_storage.insert(&create_test_command("git status", "git", 10)).unwrap();
-        source_storage.insert(&create_test_command("docker ps", "docker", 3)).unwrap();
+        source_storage
+            .insert(&create_test_command("git status", "git", 10))
+            .unwrap();
+        source_storage
+            .insert(&create_test_command("docker ps", "docker", 3))
+            .unwrap();
 
         let temp_file = NamedTempFile::new().unwrap();
         let source_exporter = Exporter::new(source_storage);
@@ -285,18 +301,22 @@ mod tests {
 
         assert_eq!(stats.total_commands, 2);
         assert_eq!(stats.imported, 1); // Only docker ps
-        assert_eq!(stats.skipped, 1);  // git status skipped
+        assert_eq!(stats.skipped, 1); // git status skipped
         assert_eq!(stats.updated, 0);
     }
 
     #[test]
     fn test_import_with_duplicates_preserve_higher() {
         let storage = create_test_storage();
-        storage.insert(&create_test_command("git status", "git", 5)).unwrap();
+        storage
+            .insert(&create_test_command("git status", "git", 5))
+            .unwrap();
 
         // Create export with higher usage count
         let source_storage = create_test_storage();
-        source_storage.insert(&create_test_command("git status", "git", 10)).unwrap();
+        source_storage
+            .insert(&create_test_command("git status", "git", 10))
+            .unwrap();
 
         let temp_file = NamedTempFile::new().unwrap();
         let source_exporter = Exporter::new(source_storage);
@@ -316,9 +336,15 @@ mod tests {
     fn test_export_import_roundtrip() {
         // Create source storage with data
         let source_storage = create_test_storage();
-        source_storage.insert(&create_test_command("git status", "git", 5)).unwrap();
-        source_storage.insert(&create_test_command("docker ps", "docker", 3)).unwrap();
-        source_storage.insert(&create_test_command("ls -la", "file", 10)).unwrap();
+        source_storage
+            .insert(&create_test_command("git status", "git", 5))
+            .unwrap();
+        source_storage
+            .insert(&create_test_command("docker ps", "docker", 3))
+            .unwrap();
+        source_storage
+            .insert(&create_test_command("ls -la", "file", 10))
+            .unwrap();
 
         // Export
         let temp_file = NamedTempFile::new().unwrap();

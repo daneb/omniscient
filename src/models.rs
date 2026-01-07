@@ -7,28 +7,28 @@ use serde::{Deserialize, Serialize};
 pub struct CommandRecord {
     /// Unique identifier (database primary key)
     pub id: Option<i64>,
-    
+
     /// The command text as executed
     pub command: String,
-    
+
     /// When the command was executed
     pub timestamp: DateTime<Utc>,
-    
+
     /// Exit code (0 = success, non-zero = failure)
     pub exit_code: i32,
-    
+
     /// How long the command took to execute (milliseconds)
     pub duration_ms: i64,
-    
+
     /// Working directory where command was executed
     pub working_dir: String,
-    
+
     /// Automatically assigned category (git, docker, etc.)
     pub category: String,
-    
+
     /// Number of times this command has been executed
     pub usage_count: i32,
-    
+
     /// Timestamp of most recent execution
     pub last_used: DateTime<Utc>,
 }
@@ -89,19 +89,19 @@ impl CommandRecord {
 pub struct Stats {
     /// Total number of commands in history
     pub total_commands: usize,
-    
+
     /// Number of successful commands (exit code 0)
     pub successful_commands: usize,
-    
+
     /// Number of failed commands (exit code != 0)
     pub failed_commands: usize,
-    
+
     /// Commands grouped by category with counts
     pub by_category: Vec<CategoryStats>,
-    
+
     /// Date of oldest command
     pub oldest_command: Option<DateTime<Utc>>,
-    
+
     /// Date of newest command
     pub newest_command: Option<DateTime<Utc>>,
 }
@@ -129,16 +129,16 @@ pub struct CategoryStats {
 pub struct SearchQuery {
     /// Text to search for (optional)
     pub text: Option<String>,
-    
+
     /// Filter by category (optional)
     pub category: Option<String>,
-    
+
     /// Filter by success/failure (optional)
     pub success_only: Option<bool>,
-    
+
     /// Maximum number of results
     pub limit: usize,
-    
+
     /// How to order results
     pub order_by: OrderBy,
 }
@@ -160,10 +160,10 @@ impl Default for SearchQuery {
 pub enum OrderBy {
     /// Most recent first
     Timestamp,
-    
+
     /// Most frequently used first
     UsageCount,
-    
+
     /// Best relevance match first (for text searches)
     Relevance,
 }

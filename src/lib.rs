@@ -17,7 +17,7 @@ pub use capture::CommandCapture;
 pub use category::Categorizer;
 pub use config::Config;
 pub use error::{OmniscientError, Result};
-pub use export::{Exporter, Importer, ImportStrategy};
+pub use export::{Exporter, ImportStrategy, Importer};
 pub use models::{CommandRecord, OrderBy, SearchQuery, Stats};
 pub use redact::RedactionEngine;
 pub use shell::{ShellHook, ShellType};

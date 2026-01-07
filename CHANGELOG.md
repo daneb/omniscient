@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.1] - 2026-01-07
+
+### Fixed
+- **Search with Special Characters** - Fixed search failure when querying for commands containing special characters
+  - IP addresses (e.g., `10.104.113.39`) now work correctly
+  - URLs (e.g., `https://api.github.com`) are fully supported
+  - File paths with dots (e.g., `./config/settings.yaml`) search successfully
+  - Email addresses and other special character combinations work properly
+  - Added automatic FTS5 query sanitization by wrapping queries in quotes
+  - Implemented fallback to SQL LIKE search for edge cases where FTS5 still fails
+  - Error: "fts5: syntax error near \".\"" is now resolved
+
+### Added
+- `sanitize_fts5_query()` helper function for safe FTS5 queries
+- `search_with_like()` fallback method for robustness
+- 7 new test cases for special character searches (98 total tests)
+- Architecture Decision Record: [ADR-001: FTS5 Query Sanitization](docs/adr/ADR-001-fts5-query-sanitization.md)
+
+### Changed
+- All search queries now use exact phrase matching for better accuracy
+- Search is now more robust with multi-layered fallback mechanisms
+
 ## [1.1.0] - 2025-11-12
 
 ### Added

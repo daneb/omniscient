@@ -19,6 +19,11 @@ Welcome to the Omniscient documentation! This index helps you navigate all avail
 
 ## 🔧 For Developers
 
+### Architecture Decision Records (ADRs)
+Located in [`docs/adr/`](adr/):
+- **[ADR Index](adr/README.md)** - List of all architecture decisions
+- **[ADR-001: FTS5 Query Sanitization](adr/ADR-001-fts5-query-sanitization.md)** - Handling special characters in search queries
+
 ### Planning Documents
 Located in [`docs/planning/`](planning/):
 - **[Specification](planning/specification.md)** - Original project specification and requirements
@@ -31,6 +36,7 @@ Located in [`docs/development/`](development/):
 - **[Project Summary](development/PROJECT-SUMMARY.md)** - Complete project overview and statistics
 - **[Progress Tracking](development/PROGRESS.md)** - Phase-by-phase development progress
 - **[Phase 2 Summary](development/PHASE2-SUMMARY-PROGRESS.md)** - Detailed Phase 2 completion report
+- **[FTS5 Sanitization Implementation Plan](development/FTS5-SANITIZATION-IMPLEMENTATION-PLAN.md)** - Detailed implementation plan for search fix
 
 ### Quick References
 Located in [`docs/development/`](development/):
@@ -97,6 +103,9 @@ omniscient/
 │
 ├── docs/                        # Documentation
 │   ├── INDEX.md                # This file
+│   ├── adr/                    # Architecture Decision Records
+│   │   ├── README.md
+│   │   └── ADR-001-fts5-query-sanitization.md
 │   ├── planning/               # Planning documents
 │   │   ├── specification.md
 │   │   ├── technical-design.md
@@ -152,5 +161,5 @@ omniscient/
 
 ---
 
-**Last Updated**: 2025-11-12
-**Version**: 1.0.2
+**Last Updated**: 2026-01-07
+**Version**: 1.1.1
