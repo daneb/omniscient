@@ -16,15 +16,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Set up Snyk CLI
+        uses: snyk/actions/setup@master
+
       - name: Run Snyk to check for vulnerabilities
-        uses: snyk/actions/cargo@master
         continue-on-error: true
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          args: --severity-threshold=high
+        run: |
+          snyk test --severity-threshold=high --sarif-file-output=snyk.sarif || true
 
       - name: Upload result to GitHub Code Scanning
         uses: github/codeql-action/upload-sarif@v3
+        if: always()
         with:
           sarif_file: snyk.sarif
