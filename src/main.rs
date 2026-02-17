@@ -1,6 +1,7 @@
 /// Main CLI entry point for Omniscient
 use clap::{Parser, Subcommand};
 use omniscient::{Config, Result};
+use std::env;
 
 #[derive(Parser)]
 #[command(name = "omniscient")]
@@ -42,6 +43,29 @@ enum Commands {
         /// Maximum number of results
         #[arg(short, long, default_value = "20")]
         limit: usize,
+
+        /// Filter by directory
+        #[arg(short, long)]
+        dir: Option<String>,
+
+        /// Include subdirectories
+        #[arg(short, long)]
+        recursive: bool,
+    },
+
+    /// Show commands executed in current directory
+    Here {
+        /// Include commands from subdirectories
+        #[arg(short, long)]
+        recursive: bool,
+
+        /// Directory to query (default: current directory)
+        #[arg(short, long)]
+        dir: Option<String>,
+
+        /// Maximum number of results
+        #[arg(short, long, default_value = "20")]
+        limit: usize,
     },
 
     /// Show recent commands
@@ -49,6 +73,14 @@ enum Commands {
         /// Number of commands to show
         #[arg(default_value = "20")]
         n: usize,
+
+        /// Filter by directory
+        #[arg(short, long)]
+        dir: Option<String>,
+
+        /// Include subdirectories
+        #[arg(short, long)]
+        recursive: bool,
     },
 
     /// Show most frequently used commands
@@ -56,6 +88,14 @@ enum Commands {
         /// Number of commands to show
         #[arg(default_value = "10")]
         n: usize,
+
+        /// Filter by directory
+        #[arg(short, long)]
+        dir: Option<String>,
+
+        /// Include subdirectories
+        #[arg(short, long)]
+        recursive: bool,
     },
 
     /// Filter commands by category
@@ -66,6 +106,14 @@ enum Commands {
         /// Maximum number of results
         #[arg(short, long, default_value = "20")]
         limit: usize,
+
+        /// Filter by directory
+        #[arg(short, long)]
+        dir: Option<String>,
+
+        /// Include subdirectories
+        #[arg(short, long)]
+        recursive: bool,
     },
 
     /// Show usage statistics
@@ -86,6 +134,16 @@ enum Commands {
 
     /// Show configuration
     Config,
+}
+
+/// Resolve the directory to query (from --dir flag or current directory)
+fn resolve_directory(dir_arg: Option<String>) -> Result<String> {
+    match dir_arg {
+        Some(path) => Ok(path),
+        None => env::current_dir()
+            .map(|p| p.to_string_lossy().to_string())
+            .map_err(omniscient::OmniscientError::Io),
+    }
 }
 
 fn main() -> Result<()> {
@@ -138,13 +196,21 @@ fn main() -> Result<()> {
 
             Ok(())
         }
-        Commands::Search { query, limit } => {
+        Commands::Search { query, limit, dir, recursive } => {
             let storage = omniscient::Storage::new(&config.database_path()?)?;
+
+            let working_dir = if dir.is_some() {
+                Some(resolve_directory(dir)?)
+            } else {
+                None
+            };
 
             let search_query = omniscient::SearchQuery {
                 text: Some(query),
                 category: None,
                 success_only: None,
+                working_dir,
+                recursive,
                 limit,
                 order_by: omniscient::OrderBy::Relevance,
             };
@@ -179,9 +245,53 @@ fn main() -> Result<()> {
 
             Ok(())
         }
-        Commands::Recent { n } => {
+        Commands::Here { recursive, dir, limit } => {
             let storage = omniscient::Storage::new(&config.database_path()?)?;
-            let results = storage.get_recent(n)?;
+            let working_dir = Some(resolve_directory(dir)?);
+
+            let results = storage.get_recent(limit, working_dir.clone(), recursive)?;
+
+            if results.is_empty() {
+                println!("No commands in history for this directory.");
+                return Ok(());
+            }
+
+            // Display header with context
+            let dir_display = working_dir.as_ref().unwrap();
+            let mode = if recursive { "(recursive)" } else { "(exact match)" };
+            println!("\nShowing commands in: {} {}\n", dir_display, mode);
+            println!("Found {} command(s):\n", results.len());
+
+            // Reuse display format from Recent command
+            for cmd in results {
+                println!(
+                    "[{}] {} {}",
+                    cmd.timestamp.format("%Y-%m-%d %H:%M:%S"),
+                    cmd.status_symbol(),
+                    cmd.command
+                );
+                println!(
+                    "  Dir: {} | Category: {} | Duration: {} | Usage: {} times",
+                    cmd.working_dir,
+                    cmd.category,
+                    cmd.duration_display(),
+                    cmd.usage_count
+                );
+                println!();
+            }
+
+            Ok(())
+        }
+        Commands::Recent { n, dir, recursive } => {
+            let storage = omniscient::Storage::new(&config.database_path()?)?;
+
+            let working_dir = if dir.is_some() {
+                Some(resolve_directory(dir)?)
+            } else {
+                None
+            };
+
+            let results = storage.get_recent(n, working_dir, recursive)?;
 
             if results.is_empty() {
                 println!("No commands in history yet.");
@@ -207,9 +317,16 @@ fn main() -> Result<()> {
 
             Ok(())
         }
-        Commands::Top { n } => {
+        Commands::Top { n, dir, recursive } => {
             let storage = omniscient::Storage::new(&config.database_path()?)?;
-            let results = storage.get_top(n)?;
+
+            let working_dir = if dir.is_some() {
+                Some(resolve_directory(dir)?)
+            } else {
+                None
+            };
+
+            let results = storage.get_top(n, working_dir, recursive)?;
 
             if results.is_empty() {
                 println!("No commands in history yet.");
@@ -235,9 +352,16 @@ fn main() -> Result<()> {
 
             Ok(())
         }
-        Commands::Category { name, limit } => {
+        Commands::Category { name, limit, dir, recursive } => {
             let storage = omniscient::Storage::new(&config.database_path()?)?;
-            let results = storage.get_by_category(&name, limit)?;
+
+            let working_dir = if dir.is_some() {
+                Some(resolve_directory(dir)?)
+            } else {
+                None
+            };
+
+            let results = storage.get_by_category(&name, limit, working_dir, recursive)?;
 
             if results.is_empty() {
                 println!("No commands found in category '{}'", name);

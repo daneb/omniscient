@@ -52,6 +52,7 @@ impl Storage {
             CREATE INDEX IF NOT EXISTS idx_usage ON commands(usage_count DESC);
             CREATE INDEX IF NOT EXISTS idx_command ON commands(command);
             CREATE INDEX IF NOT EXISTS idx_exit_code ON commands(exit_code);
+            CREATE INDEX IF NOT EXISTS idx_working_dir ON commands(working_dir);
 
             -- Full-text search virtual table
             CREATE VIRTUAL TABLE IF NOT EXISTS commands_fts USING fts5(
@@ -192,14 +193,7 @@ impl Storage {
     ///
     /// # Returns
     /// Vector of matching command records
-    fn search_with_like(
-        &self,
-        text: &str,
-        category: &Option<String>,
-        success_only: &Option<bool>,
-        limit: usize,
-        order_by: &OrderBy,
-    ) -> Result<Vec<CommandRecord>> {
+    fn search_with_like(&self, query: &SearchQuery, text: &str) -> Result<Vec<CommandRecord>> {
         let mut sql = String::from(
             "SELECT id, command, timestamp, exit_code, duration_ms, working_dir,
                     category, usage_count, last_used
@@ -210,29 +204,40 @@ impl Storage {
         let mut params: Vec<Box<dyn rusqlite::ToSql>> = vec![Box::new(format!("%{}%", text))];
 
         // Add category filter
-        if let Some(ref cat) = category {
+        if let Some(ref cat) = &query.category {
             sql.push_str(" AND category = ?");
             params.push(Box::new(cat.clone()));
         }
 
         // Add success filter
-        if let Some(success) = success_only {
-            if *success {
+        if let Some(success) = query.success_only {
+            if success {
                 sql.push_str(" AND exit_code = 0");
             } else {
                 sql.push_str(" AND exit_code != 0");
             }
         }
 
+        // Add working directory filter
+        if let Some(ref dir) = &query.working_dir {
+            if query.recursive {
+                sql.push_str(" AND working_dir LIKE ?");
+                params.push(Box::new(format!("{}%", dir)));
+            } else {
+                sql.push_str(" AND working_dir = ?");
+                params.push(Box::new(dir.clone()));
+            }
+        }
+
         // Add ordering
-        match order_by {
+        match query.order_by {
             OrderBy::Timestamp => sql.push_str(" ORDER BY timestamp DESC"),
             OrderBy::UsageCount | OrderBy::Relevance => {
                 sql.push_str(" ORDER BY usage_count DESC, timestamp DESC");
             }
         }
 
-        sql.push_str(&format!(" LIMIT {}", limit));
+        sql.push_str(&format!(" LIMIT {}", query.limit));
 
         let mut stmt = self.conn.prepare(&sql)?;
         let param_refs: Vec<&dyn rusqlite::ToSql> = params.iter().map(|p| p.as_ref()).collect();
@@ -282,6 +287,17 @@ impl Storage {
             }
         }
 
+        // Add working directory filter
+        if let Some(ref dir) = query.working_dir {
+            if query.recursive {
+                sql.push_str(" AND working_dir LIKE ?");
+                params.push(Box::new(format!("{}%", dir)));
+            } else {
+                sql.push_str(" AND working_dir = ?");
+                params.push(Box::new(dir.clone()));
+            }
+        }
+
         // Add text search if provided
         if let Some(ref text) = query.text {
             // Sanitize query for FTS5 to handle special characters
@@ -328,26 +344,14 @@ impl Storage {
                     Ok(rows) => rows.collect::<std::result::Result<Vec<_>, _>>()?,
                     Err(_) if query.text.is_some() => {
                         // FTS5 query failed, fall back to LIKE search
-                        self.search_with_like(
-                            query.text.as_ref().unwrap(),
-                            &query.category,
-                            &query.success_only,
-                            query.limit,
-                            &query.order_by,
-                        )?
+                        self.search_with_like(query, query.text.as_ref().unwrap())?
                     }
                     Err(e) => return Err(e.into()),
                 }
             }
             Err(_) if query.text.is_some() => {
                 // FTS5 prepare failed, fall back to LIKE search
-                self.search_with_like(
-                    query.text.as_ref().unwrap(),
-                    &query.category,
-                    &query.success_only,
-                    query.limit,
-                    &query.order_by,
-                )?
+                self.search_with_like(query, query.text.as_ref().unwrap())?
             }
             Err(e) => return Err(e.into()),
         };
@@ -356,11 +360,13 @@ impl Storage {
     }
 
     /// Get the most recent N commands
-    pub fn get_recent(&self, limit: usize) -> Result<Vec<CommandRecord>> {
+    pub fn get_recent(&self, limit: usize, working_dir: Option<String>, recursive: bool) -> Result<Vec<CommandRecord>> {
         let query = SearchQuery {
             text: None,
             category: None,
             success_only: None,
+            working_dir,
+            recursive,
             limit,
             order_by: OrderBy::Timestamp,
         };
@@ -369,11 +375,13 @@ impl Storage {
     }
 
     /// Get the most frequently used commands
-    pub fn get_top(&self, limit: usize) -> Result<Vec<CommandRecord>> {
+    pub fn get_top(&self, limit: usize, working_dir: Option<String>, recursive: bool) -> Result<Vec<CommandRecord>> {
         let query = SearchQuery {
             text: None,
             category: None,
             success_only: None,
+            working_dir,
+            recursive,
             limit,
             order_by: OrderBy::UsageCount,
         };
@@ -382,11 +390,13 @@ impl Storage {
     }
 
     /// Get all commands in a specific category
-    pub fn get_by_category(&self, category: &str, limit: usize) -> Result<Vec<CommandRecord>> {
+    pub fn get_by_category(&self, category: &str, limit: usize, working_dir: Option<String>, recursive: bool) -> Result<Vec<CommandRecord>> {
         let query = SearchQuery {
             text: None,
             category: Some(category.to_string()),
             success_only: None,
+            working_dir,
+            recursive,
             limit,
             order_by: OrderBy::UsageCount,
         };
@@ -572,7 +582,7 @@ mod tests {
             .insert(&create_test_command("docker ps", "docker", 0))
             .unwrap();
 
-        let git_commands = storage.get_by_category("git", 10).unwrap();
+        let git_commands = storage.get_by_category("git", 10, None, false).unwrap();
         assert_eq!(git_commands.len(), 2);
     }
 
@@ -619,6 +629,8 @@ mod tests {
             text: Some("10.104.113.39".to_string()),
             category: None,
             success_only: None,
+            working_dir: None,
+            recursive: false,
             limit: 10,
             order_by: OrderBy::Relevance,
         };
@@ -639,6 +651,8 @@ mod tests {
             text: Some("api.github.com".to_string()),
             category: None,
             success_only: None,
+            working_dir: None,
+            recursive: false,
             limit: 10,
             order_by: OrderBy::Relevance,
         };
@@ -658,6 +672,8 @@ mod tests {
             text: Some("./config/settings.yaml".to_string()),
             category: None,
             success_only: None,
+            working_dir: None,
+            recursive: false,
             limit: 10,
             order_by: OrderBy::Relevance,
         };
@@ -677,6 +693,8 @@ mod tests {
             text: Some("user@host.com".to_string()),
             category: None,
             success_only: None,
+            working_dir: None,
+            recursive: false,
             limit: 10,
             order_by: OrderBy::Relevance,
         };
@@ -697,6 +715,8 @@ mod tests {
             text: None,
             category: Some("file".to_string()),
             success_only: None,
+            working_dir: None,
+            recursive: false,
             limit: 10,
             order_by: OrderBy::Timestamp,
         };

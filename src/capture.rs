@@ -141,7 +141,7 @@ mod tests {
         assert_eq!(stats.total_commands, 1); // Only one unique command
 
         // Verify usage count was incremented
-        let commands = capture.storage.get_recent(10).unwrap();
+        let commands = capture.storage.get_recent(10, None, false).unwrap();
         assert_eq!(commands.len(), 1);
         assert_eq!(commands[0].usage_count, 2);
     }
@@ -167,7 +167,7 @@ mod tests {
         capture.capture("docker ps", 0, 50).unwrap();
         capture.capture("npm install", 0, 2000).unwrap();
 
-        let commands = capture.storage.get_recent(10).unwrap();
+        let commands = capture.storage.get_recent(10, None, false).unwrap();
         assert_eq!(commands.len(), 3);
 
         // Check categories
@@ -224,7 +224,7 @@ mod tests {
         let stats = capture.stats().unwrap();
         assert_eq!(stats.total_commands, 1);
 
-        let commands = capture.storage.get_recent(10).unwrap();
+        let commands = capture.storage.get_recent(10, None, false).unwrap();
         assert_eq!(commands[0].command, "slow command");
     }
 
@@ -241,7 +241,7 @@ mod tests {
         let stats = capture.stats().unwrap();
         assert_eq!(stats.total_commands, 1);
 
-        let commands = capture.storage.get_recent(10).unwrap();
+        let commands = capture.storage.get_recent(10, None, false).unwrap();
         assert_eq!(commands[0].command, "export PASSWORD=secret");
     }
 
@@ -257,7 +257,7 @@ mod tests {
         capture.capture("ls", 0, 10).unwrap();
 
         // Should only have one entry (same command, same directory)
-        let commands = capture.storage.get_recent(10).unwrap();
+        let commands = capture.storage.get_recent(10, None, false).unwrap();
         assert_eq!(commands.len(), 1);
         assert_eq!(commands[0].usage_count, 2);
     }

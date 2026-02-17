@@ -136,6 +136,12 @@ pub struct SearchQuery {
     /// Filter by success/failure (optional)
     pub success_only: Option<bool>,
 
+    /// Filter by working directory (optional)
+    pub working_dir: Option<String>,
+
+    /// Include subdirectories when filtering by working_dir
+    pub recursive: bool,
+
     /// Maximum number of results
     pub limit: usize,
 
@@ -149,6 +155,8 @@ impl Default for SearchQuery {
             text: None,
             category: None,
             success_only: None,
+            working_dir: None,
+            recursive: false,
             limit: 20,
             order_by: OrderBy::Timestamp,
         }

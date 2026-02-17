@@ -5,6 +5,38 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2026-02-17
+
+### Added
+
+- **Contextual Queries** - Filter command history by directory path
+  - New `omniscient here` command shows commands executed in current directory
+  - `--recursive` flag (`-r`) includes subdirectories in search
+  - `--dir <path>` flag (`-d`) queries specific directory without navigating to it
+  - All existing commands now support path filtering: `search`, `recent`, `top`, `category`
+  - Added database index on `working_dir` for fast path filtering (<10ms queries)
+  - Examples:
+    - `omniscient here` - Show commands in current directory (exact match)
+    - `omniscient here -r` - Include all subdirectories (recursive)
+    - `omniscient here --dir ~/projects/myapp` - Query different directory
+    - `omniscient search "git" --dir $(pwd) -r` - Search with path filter
+    - `omniscient recent --dir /path/to/project` - Recent commands in project
+    - `omniscient top --dir ~/services/api --recursive` - Top commands in service
+- Architecture Decision Record: [ADR-002: Contextual Queries](docs/adr/ADR-002-contextual-queries.md)
+
+### Changed
+
+- `SearchQuery` model extended with `working_dir: Option<String>` and `recursive: bool` fields
+- Updated `get_recent()`, `get_top()`, `get_by_category()` to accept path filtering parameters
+- Refactored `search_with_like()` to take `SearchQuery` reference (fixes clippy warning)
+
+### Technical
+
+- Added `resolve_directory()` helper function for path resolution
+- Path filtering uses exact match (`WHERE working_dir = ?`) or prefix match (`WHERE working_dir LIKE 'path%'`)
+- All 91 tests passing with zero clippy warnings
+- No breaking changes - all new parameters are optional with sensible defaults
+
 ## [1.1.1] - 2026-01-07
 
 ### Fixed
