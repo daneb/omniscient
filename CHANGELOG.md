@@ -25,6 +25,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added workflow scope detection with helpful error messages
   - Each skipped step shows clear "idempotent re-run" feedback
 
+### Removed
+
+- **Snyk Integration** - Removed Snyk workflow and documentation
+  - Snyk doesn't support standard Rust/Cargo scanning (requires SBOM generation + Enterprise plan)
+  - cargo-audit already provides better Rust-specific vulnerability scanning
+  - Removed `.github/workflows/snyk.yml`
+  - Removed `docs/SNYK_SETUP.md`
+  - Removed `SNYK_TOKEN` GitHub secret
+
 ### Developer Experience
 
 - Release script now safe to re-run after partial failures
