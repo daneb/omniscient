@@ -231,14 +231,24 @@ if [ "$PUSHED_GIT" = true ]; then
             fi
 
             # Create release with tag message
-            if echo "$TAG_MESSAGE" | gh release create "$VERSION_TAG" \
+            RELEASE_OUTPUT=$(echo "$TAG_MESSAGE" | gh release create "$VERSION_TAG" \
                 --title "$RELEASE_TITLE" \
-                --notes-file -; then
+                --notes-file - 2>&1)
+            RELEASE_EXIT=$?
+
+            if [ $RELEASE_EXIT -eq 0 ]; then
                 success "GitHub release created"
                 info "View at: https://github.com/daneb/omniscient/releases/tag/${VERSION_TAG}"
             else
                 warning "Failed to create GitHub release"
-                info "Create manually: https://github.com/daneb/omniscient/releases/new?tag=${VERSION_TAG}"
+
+                # Check if it's a workflow scope issue
+                if echo "$RELEASE_OUTPUT" | grep -q "workflow.*scope"; then
+                    info "Missing 'workflow' scope. Run: gh auth refresh -h github.com -s workflow"
+                    info "Then create release: gh release create ${VERSION_TAG} --title \"${RELEASE_TITLE}\" --notes \"...\""
+                fi
+
+                info "Or create manually: https://github.com/daneb/omniscient/releases/new?tag=${VERSION_TAG}"
             fi
         fi
     fi
