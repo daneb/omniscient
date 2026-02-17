@@ -196,7 +196,12 @@ fn main() -> Result<()> {
 
             Ok(())
         }
-        Commands::Search { query, limit, dir, recursive } => {
+        Commands::Search {
+            query,
+            limit,
+            dir,
+            recursive,
+        } => {
             let storage = omniscient::Storage::new(&config.database_path()?)?;
 
             let working_dir = if dir.is_some() {
@@ -245,7 +250,11 @@ fn main() -> Result<()> {
 
             Ok(())
         }
-        Commands::Here { recursive, dir, limit } => {
+        Commands::Here {
+            recursive,
+            dir,
+            limit,
+        } => {
             let storage = omniscient::Storage::new(&config.database_path()?)?;
             let working_dir = Some(resolve_directory(dir)?);
 
@@ -258,7 +267,11 @@ fn main() -> Result<()> {
 
             // Display header with context
             let dir_display = working_dir.as_ref().unwrap();
-            let mode = if recursive { "(recursive)" } else { "(exact match)" };
+            let mode = if recursive {
+                "(recursive)"
+            } else {
+                "(exact match)"
+            };
             println!("\nShowing commands in: {} {}\n", dir_display, mode);
             println!("Found {} command(s):\n", results.len());
 
@@ -352,7 +365,12 @@ fn main() -> Result<()> {
 
             Ok(())
         }
-        Commands::Category { name, limit, dir, recursive } => {
+        Commands::Category {
+            name,
+            limit,
+            dir,
+            recursive,
+        } => {
             let storage = omniscient::Storage::new(&config.database_path()?)?;
 
             let working_dir = if dir.is_some() {

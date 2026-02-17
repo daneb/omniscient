@@ -360,7 +360,12 @@ impl Storage {
     }
 
     /// Get the most recent N commands
-    pub fn get_recent(&self, limit: usize, working_dir: Option<String>, recursive: bool) -> Result<Vec<CommandRecord>> {
+    pub fn get_recent(
+        &self,
+        limit: usize,
+        working_dir: Option<String>,
+        recursive: bool,
+    ) -> Result<Vec<CommandRecord>> {
         let query = SearchQuery {
             text: None,
             category: None,
@@ -375,7 +380,12 @@ impl Storage {
     }
 
     /// Get the most frequently used commands
-    pub fn get_top(&self, limit: usize, working_dir: Option<String>, recursive: bool) -> Result<Vec<CommandRecord>> {
+    pub fn get_top(
+        &self,
+        limit: usize,
+        working_dir: Option<String>,
+        recursive: bool,
+    ) -> Result<Vec<CommandRecord>> {
         let query = SearchQuery {
             text: None,
             category: None,
@@ -390,7 +400,13 @@ impl Storage {
     }
 
     /// Get all commands in a specific category
-    pub fn get_by_category(&self, category: &str, limit: usize, working_dir: Option<String>, recursive: bool) -> Result<Vec<CommandRecord>> {
+    pub fn get_by_category(
+        &self,
+        category: &str,
+        limit: usize,
+        working_dir: Option<String>,
+        recursive: bool,
+    ) -> Result<Vec<CommandRecord>> {
         let query = SearchQuery {
             text: None,
             category: Some(category.to_string()),
