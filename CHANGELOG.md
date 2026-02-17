@@ -5,6 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.1] - 2026-02-17
+
+### Added
+
+- **Security & Trust Infrastructure**
+  - GitHub Actions CI/CD pipeline (automated testing on Ubuntu & macOS)
+  - Security scanning with cargo-audit (runs on every commit)
+  - Code coverage tracking with codecov integration
+  - Dependency verification with cargo-deny (license & source checking)
+  - Snyk vulnerability monitoring workflow (optional continuous security)
+  - SECURITY.md with comprehensive security policy and disclosure process
+  - Trust badges in README (CI status, coverage, security audit)
+  - Enhanced CONTRIBUTING.md with AI transparency section
+
+### Changed
+
+- README now includes "Trust & Security" section with verification steps
+- Documentation emphasizes transparency and auditability
+- All architectural decisions now referenced in contributing guidelines
+
+### Documentation
+
+- Added SECURITY.md - Security policy and vulnerability disclosure
+- Added docs/SNYK_SETUP.md - Optional Snyk integration guide
+- Added docs/HACKERNEWS_ANNOUNCEMENT.md - Community announcement template
+- Enhanced CONTRIBUTING.md with AI development transparency
+
 ## [1.2.0] - 2026-02-17
 
 ### Added
