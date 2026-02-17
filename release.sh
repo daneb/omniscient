@@ -70,10 +70,23 @@ else
     success "Git account: $GIT_EMAIL"
 fi
 
-# Check if tag already exists
+# Check if tag already exists (locally or remotely)
+step "Checking if release already exists..."
+TAG_EXISTS_LOCAL=false
+TAG_EXISTS_REMOTE=false
+
 if git rev-parse "$VERSION_TAG" >/dev/null 2>&1; then
-    error "Tag $VERSION_TAG already exists"
+    TAG_EXISTS_LOCAL=true
 fi
+
+if git ls-remote --tags origin 2>/dev/null | grep -q "refs/tags/$VERSION_TAG"; then
+    TAG_EXISTS_REMOTE=true
+fi
+
+if [ "$TAG_EXISTS_LOCAL" = true ] || [ "$TAG_EXISTS_REMOTE" = true ]; then
+    error "Tag $VERSION_TAG already exists (local: $TAG_EXISTS_LOCAL, remote: $TAG_EXISTS_REMOTE)"
+fi
+success "Tag $VERSION_TAG does not exist yet"
 
 # Check working directory is clean
 step "Checking git status..."
@@ -149,13 +162,19 @@ if [[ ! $REPLY =~ ^[Yy]$ ]]; then
     error "Aborted"
 fi
 
-# Commit version bump
-step "Committing version bump..."
-git add Cargo.toml Cargo.lock
-git commit -m "Bump version to ${VERSION}
+# Check if version already bumped in recent commits
+if git log -5 --pretty=%B | grep -q "Bump version to ${VERSION}"; then
+    warning "Version ${VERSION} already bumped in recent commits"
+    info "Skipping commit step (idempotent re-run)"
+else
+    # Commit version bump
+    step "Committing version bump..."
+    git add Cargo.toml Cargo.lock
+    git commit -m "Bump version to ${VERSION}
 
 Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>"
-success "Version bump committed"
+    success "Version bump committed"
+fi
 
 # Create git tag
 step "Creating git tag ${VERSION_TAG}..."
@@ -180,21 +199,29 @@ if ! cargo publish --dry-run; then
 fi
 success "Dry-run successful"
 
-# Confirm publish
-echo -e "\n${YELLOW}Ready to publish to crates.io${NC}"
-read -p "Publish to crates.io? (y/n) " -n 1 -r
-echo
-if [[ $REPLY =~ ^[Yy]$ ]]; then
-    step "Publishing to crates.io..."
-    if cargo publish; then
-        success "Published to crates.io"
-        PUBLISHED_CARGO=true
-    else
-        error "Cargo publish failed"
-    fi
+# Check if already published to crates.io
+step "Checking crates.io..."
+if cargo search omniscient --limit 1 2>/dev/null | grep -q "omniscient = \"${VERSION}\""; then
+    warning "Version ${VERSION} already published to crates.io"
+    info "Skipping publish step (idempotent re-run)"
+    PUBLISHED_CARGO=true
 else
-    info "Skipped crates.io publish"
-    PUBLISHED_CARGO=false
+    # Confirm publish
+    echo -e "\n${YELLOW}Ready to publish to crates.io${NC}"
+    read -p "Publish to crates.io? (y/n) " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        step "Publishing to crates.io..."
+        if cargo publish; then
+            success "Published to crates.io"
+            PUBLISHED_CARGO=true
+        else
+            error "Cargo publish failed"
+        fi
+    else
+        info "Skipped crates.io publish"
+        PUBLISHED_CARGO=false
+    fi
 fi
 
 # Push to remote
@@ -223,32 +250,39 @@ if [ "$PUSHED_GIT" = true ]; then
             warning "gh CLI not installed. Install: brew install gh"
             info "Or create release manually: https://github.com/daneb/omniscient/releases/new"
         else
-            step "Creating GitHub release..."
-            echo -e "${YELLOW}Enter release title (or press enter for default):${NC}"
-            read -r RELEASE_TITLE
-            if [ -z "$RELEASE_TITLE" ]; then
-                RELEASE_TITLE="${VERSION_TAG}"
-            fi
-
-            # Create release with tag message
-            RELEASE_OUTPUT=$(echo "$TAG_MESSAGE" | gh release create "$VERSION_TAG" \
-                --title "$RELEASE_TITLE" \
-                --notes-file - 2>&1)
-            RELEASE_EXIT=$?
-
-            if [ $RELEASE_EXIT -eq 0 ]; then
-                success "GitHub release created"
+            # Check if release already exists
+            if gh release view "$VERSION_TAG" &>/dev/null; then
+                success "GitHub release already exists for ${VERSION_TAG}"
                 info "View at: https://github.com/daneb/omniscient/releases/tag/${VERSION_TAG}"
+                info "Skipping release creation (idempotent re-run)"
             else
-                warning "Failed to create GitHub release"
-
-                # Check if it's a workflow scope issue
-                if echo "$RELEASE_OUTPUT" | grep -q "workflow.*scope"; then
-                    info "Missing 'workflow' scope. Run: gh auth refresh -h github.com -s workflow"
-                    info "Then create release: gh release create ${VERSION_TAG} --title \"${RELEASE_TITLE}\" --notes \"...\""
+                step "Creating GitHub release..."
+                echo -e "${YELLOW}Enter release title (or press enter for default):${NC}"
+                read -r RELEASE_TITLE
+                if [ -z "$RELEASE_TITLE" ]; then
+                    RELEASE_TITLE="${VERSION_TAG}"
                 fi
 
-                info "Or create manually: https://github.com/daneb/omniscient/releases/new?tag=${VERSION_TAG}"
+                # Create release with tag message
+                RELEASE_OUTPUT=$(echo "$TAG_MESSAGE" | gh release create "$VERSION_TAG" \
+                    --title "$RELEASE_TITLE" \
+                    --notes-file - 2>&1)
+                RELEASE_EXIT=$?
+
+                if [ $RELEASE_EXIT -eq 0 ]; then
+                    success "GitHub release created"
+                    info "View at: https://github.com/daneb/omniscient/releases/tag/${VERSION_TAG}"
+                else
+                    warning "Failed to create GitHub release"
+
+                    # Check if it's a workflow scope issue
+                    if echo "$RELEASE_OUTPUT" | grep -q "workflow.*scope"; then
+                        info "Missing 'workflow' scope. Run: gh auth refresh -h github.com -s workflow"
+                        info "Then create release: gh release create ${VERSION_TAG} --title \"${RELEASE_TITLE}\" --notes \"...\""
+                    fi
+
+                    info "Or create manually: https://github.com/daneb/omniscient/releases/new?tag=${VERSION_TAG}"
+                fi
             fi
         fi
     fi
