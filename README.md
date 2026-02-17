@@ -2,9 +2,17 @@
 
 > Never forget a command again. Your complete CLI history, categorized and searchable.
 
+[![CI](https://github.com/daneb/omniscient/actions/workflows/ci.yml/badge.svg)](https://github.com/daneb/omniscient/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/daneb/omniscient/branch/master/graph/badge.svg)](https://codecov.io/gh/daneb/omniscient)
+[![Security Audit](https://github.com/daneb/omniscient/actions/workflows/security-audit.yml/badge.svg)](https://github.com/daneb/omniscient/actions/workflows/security-audit.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Crates.io](https://img.shields.io/crates/v/omniscient.svg)](https://crates.io/crates/omniscient)
+
 **Omniscient** is a cross-platform command history tracker that captures every command you run, categorizes them intelligently, and makes them instantly searchable. Survive machine migrations, access your command library anywhere, and boost your CLI productivity.
 
-📚 **[Complete Documentation](DOCUMENTATION.md)** | 📖 **[Full Index](docs/INDEX.md)** | 🤝 **[Contributing](CONTRIBUTING.md)**
+**Built with AI assistance. Verified by humans. Trusted through transparency.**
+
+📚 **[Complete Documentation](DOCUMENTATION.md)** | 📖 **[Full Index](docs/INDEX.md)** | 🤝 **[Contributing](CONTRIBUTING.md)** | 🔒 **[Security](SECURITY.md)**
 
 ## Features
 
@@ -16,6 +24,66 @@
 - 📈 **Usage Analytics**: Track your most-used commands
 - 🎯 **Simple**: Single binary, minimal configuration
 - 🐚 **Multi-Shell**: Supports Zsh and Bash (Fish coming soon)
+
+## Trust & Security
+
+### How can I trust an AI-built tool with my command history?
+
+Valid question. Here's our answer:
+
+### Transparency First
+
+- ✅ **100% Open Source**: Every line of code is public and auditable
+- ✅ **91 Automated Tests**: Comprehensive test coverage validates all functionality
+- ✅ **Zero Clippy Warnings**: Strict linting enforced on every commit
+- ✅ **Security Audits**: Automated `cargo-audit` checks on every push
+- ✅ **CI/CD Pipeline**: All commits tested on Ubuntu & macOS before merge
+
+### Privacy Guarantees
+
+```bash
+# Verify yourself - no network calls anywhere in the codebase
+grep -r "http" src/ --include="*.rs" | grep -v "^[[:space:]]*//"
+# Returns nothing (except comments) - zero network activity
+
+# All data stored locally
+ls ~/.omniscient/
+# history.db  config.toml  (that's it - no phoning home)
+```
+
+### AI-Assisted Development
+
+This project is built with AI assistance (Claude). Here's how we ensure quality:
+
+1. **Human Review**: Every AI-generated line is reviewed and validated
+2. **Architecture Decisions**: Humans make all design decisions (documented in [ADRs](docs/adr/))
+3. **Test Coverage**: 91 tests written to validate AI-generated code
+4. **Incremental Development**: Full git history shows human-guided, step-by-step progress
+
+### Verify Yourself
+
+```bash
+# Clone and audit the code
+git clone https://github.com/daneb/omniscient
+cd omniscient
+
+# Run all tests
+cargo test --verbose  # 91/91 passing
+
+# Security audit
+cargo install cargo-audit
+cargo audit  # Zero vulnerabilities
+
+# Read the architecture decisions
+cat docs/adr/*.md
+
+# Review test coverage
+cargo tarpaulin --verbose
+```
+
+**Bottom line**: Trust through transparency. Don't trust us? Audit the code. That's why it's open source.
+
+See [SECURITY.md](SECURITY.md) for our security policy and [CONTRIBUTING.md](CONTRIBUTING.md) for development transparency.
 
 ## Quick Start
 

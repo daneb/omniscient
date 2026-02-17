@@ -1,0 +1,37 @@
+# cargo-deny configuration for security and licensing checks
+# https://embarkstudios.github.io/cargo-deny/
+
+[advisories]
+# Security vulnerability database check
+db-path = "~/.cargo/advisory-db"
+db-urls = ["https://github.com/rustsec/advisory-db"]
+vulnerability = "deny"
+unmaintained = "warn"
+yanked = "warn"
+notice = "warn"
+
+[licenses]
+# Ensure all dependencies use acceptable licenses
+unlicensed = "deny"
+allow = [
+    "MIT",
+    "Apache-2.0",
+    "BSD-2-Clause",
+    "BSD-3-Clause",
+    "ISC",
+    "Unicode-DFS-2016",
+]
+copyleft = "warn"
+confidence-threshold = 0.8
+
+[bans]
+# Prevent certain crates from being used
+multiple-versions = "warn"
+wildcards = "allow"
+highlight = "all"
+
+[sources]
+# Ensure dependencies come from trusted sources
+unknown-registry = "deny"
+unknown-git = "deny"
+allow-registry = ["https://github.com/rust-lang/crates.io-index"]

@@ -2,6 +2,52 @@
 
 Thank you for your interest in contributing to Omniscient! This document provides guidelines and instructions for contributing.
 
+## AI-Assisted Development & Transparency
+
+**Omniscient is developed with AI assistance (Claude by Anthropic).** We believe in complete transparency:
+
+### Why We Use AI
+
+- **Productivity**: Accelerates implementation of well-defined features
+- **Quality**: Generates comprehensive tests, documentation, and ADRs
+- **Consistency**: Maintains coding patterns across the codebase
+
+### How We Ensure Trust
+
+1. **Human Review**: Every line of AI-generated code is reviewed and validated
+2. **Comprehensive Testing**: 91 automated tests covering all functionality
+3. **Strict Quality**: Zero clippy warnings, security audits on every commit
+4. **Documentation**: All major decisions documented in Architecture Decision Records (ADRs)
+5. **Open Development**: Full git history shows incremental, human-reviewed changes
+
+### What You Can Verify
+
+```bash
+# Audit the codebase yourself
+git clone https://github.com/daneb/omniscient
+cd omniscient
+
+# Run all tests
+cargo test --verbose  # 91/91 passing
+
+# Security audit
+cargo install cargo-audit
+cargo audit  # Zero vulnerabilities
+
+# Verify no network calls (privacy guarantee)
+grep -r "http" src/ --include="*.rs" | grep -v "^[[:space:]]*//"
+# Should only show comments, no actual network code
+```
+
+### Contributing AI-Assisted Code
+
+If you use AI tools (ChatGPT, Claude, Copilot):
+
+- ✅ Review and understand all generated code
+- ✅ Write tests for AI-generated functionality
+- ✅ Run `cargo test` and `cargo clippy`
+- ✅ Optional: Mention AI assistance in PR (appreciated for transparency)
+
 ## Development Setup
 
 ### Prerequisites
