@@ -5,6 +5,71 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.4] - 2026-02-17
+
+### Fixed
+
+- **Code Formatting** - Fixed rustfmt violations to pass CI checks
+  - Split long function signatures across multiple lines (`get_recent`, `get_top`, `get_by_category`)
+  - Fixed command handler match patterns in main.rs (`Search`, `Here`, `Category`)
+  - All code now complies with rustfmt line length limits
+
+### Changed
+
+- **Release Script Improvements**
+  - Made script fully idempotent and resumable
+  - Added check for tags existing remotely (not just locally)
+  - Skip version bump commit if already present in recent commits
+  - Skip cargo publish if version already on crates.io
+  - Skip GitHub release creation if release already exists
+  - Added workflow scope detection with helpful error messages
+  - Each skipped step shows clear "idempotent re-run" feedback
+
+### Developer Experience
+
+- Release script now safe to re-run after partial failures
+- Clear error messages when gh CLI missing workflow scope
+- No duplicate commits, tags, or publishes on script re-runs
+
+## [1.2.2] - 2026-02-17
+
+### Added
+
+- **Developer Tooling**
+  - `release.sh` - Complete automated release workflow script
+    - One command to run tests, update version, tag, publish to crates.io, and create GitHub release
+    - Interactive prompts with safety checks at each step
+    - Color-coded output and comprehensive error handling
+    - Works around macOS security software blocking release builds
+  - `RELEASE-WORKFLOW.md` - Quick reference guide for using release script
+
+- **Git Account Management**
+  - `docs/GIT_ACCOUNT_SWITCHING.md` - Complete guide for automatic git account switching
+    - Automatic directory-based account switching (~/Documents/Repos/Personal vs Work)
+    - Security benefits and privacy protection documentation
+    - Verification tool (`git-which-account`) integration guide
+    - Pre-commit checklist and troubleshooting steps
+  - `docs/MULTI_ACCOUNT_GIT.md` - SSH configuration reference for multiple GitHub accounts
+  - `docs/PUBLISHING.md` - Complete guide for publishing to crates.io and GitHub releases
+  - `~/bin/git-which-account` - Verification script to check active git account
+
+### Changed
+
+- **Cargo.toml**: Added `[profile.release]` with `strip = false` to work around macOS security software
+- **release.sh**: Uses `cargo check` instead of `cargo build --release` to avoid security software blocks
+- **.gitignore**: Added `.DS_Store` to prevent macOS metadata in package
+
+### Documentation
+
+- All guides include step-by-step instructions, troubleshooting sections, security best practices, and quick reference commands
+- Clear documentation on preventing accidental use of work email in personal repos
+
+### Notes
+
+- No functional code changes - all changes are developer tooling and documentation
+- Users won't see any difference when installing or using omniscient
+- Improvements help maintainers manage multiple git accounts and automate releases
+
 ## [1.2.1] - 2026-02-17
 
 ### Added
@@ -251,4 +316,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+[1.2.4]: https://github.com/daneb/omniscient/releases/tag/v1.2.4
+[1.2.2]: https://github.com/daneb/omniscient/releases/tag/v1.2.2
+[1.2.1]: https://github.com/daneb/omniscient/releases/tag/v1.2.1
+[1.2.0]: https://github.com/daneb/omniscient/releases/tag/v1.2.0
+[1.1.1]: https://github.com/daneb/omniscient/releases/tag/v1.1.1
+[1.1.0]: https://github.com/daneb/omniscient/releases/tag/v1.1.0
+[1.0.2]: https://github.com/daneb/omniscient/releases/tag/v1.0.2
+[1.0.1]: https://github.com/daneb/omniscient/releases/tag/v1.0.1
 [1.0.0]: https://github.com/daneb/omniscient/releases/tag/v1.0.0
