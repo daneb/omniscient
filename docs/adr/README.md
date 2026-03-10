@@ -43,6 +43,8 @@ ADRs are numbered sequentially and use the following naming pattern:
 | Number | Title | Status | Date |
 |--------|-------|--------|------|
 | [001](ADR-001-fts5-query-sanitization.md) | FTS5 Query Sanitization for Special Characters | Accepted | 2026-01-07 |
+| [002](ADR-002-contextual-queries.md) | Contextual Queries (Path-Based Command Filtering) | Accepted | 2026-02-17 |
+| [003](ADR-003-ux-enhancements-frecency-color-highlighting.md) | UX Enhancements — Frecency Scoring, Colorized Output, Search Match Highlighting | Accepted | 2026-03-10 |
 
 ## When to Create an ADR
 

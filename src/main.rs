@@ -1,5 +1,6 @@
 /// Main CLI entry point for Omniscient
 use clap::{Parser, Subcommand};
+use colored::Colorize;
 use omniscient::{Config, Result};
 use std::env;
 
@@ -136,6 +137,50 @@ enum Commands {
     Config,
 }
 
+/// Return a colored status symbol for a command record
+fn colorize_status(cmd: &omniscient::CommandRecord) -> colored::ColoredString {
+    if cmd.is_success() {
+        "✓".green()
+    } else {
+        "✗".red()
+    }
+}
+
+/// Return a colored string for a category name
+fn colorize_category(category: &str) -> colored::ColoredString {
+    match category {
+        "git" => category.cyan(),
+        "docker" => category.blue(),
+        "network" => category.magenta(),
+        "file" => category.yellow(),
+        "package" => category.bright_green(),
+        "database" => category.bright_magenta(),
+        "kubernetes" => category.bright_blue(),
+        "cloud" => category.bright_cyan(),
+        "system" => category.bright_yellow(),
+        "editor" => category.white(),
+        "build" => category.bright_red(),
+        "vcs" => category.bright_white(),
+        _ => category.normal(),
+    }
+}
+
+/// Highlight the first occurrence of `query` in `text` using bold + underline
+fn highlight_match(text: &str, query: &str) -> String {
+    let lower_text = text.to_lowercase();
+    let lower_query = query.to_lowercase();
+    match lower_text.find(&lower_query) {
+        Some(start) => {
+            let end = start + query.len();
+            let prefix = &text[..start];
+            let matched = &text[start..end];
+            let suffix = &text[end..];
+            format!("{}{}{}", prefix, matched.bold().underline(), suffix)
+        }
+        None => text.to_string(),
+    }
+}
+
 /// Resolve the directory to query (from --dir flag or current directory)
 fn resolve_directory(dir_arg: Option<String>) -> Result<String> {
     match dir_arg {
@@ -211,7 +256,7 @@ fn main() -> Result<()> {
             };
 
             let search_query = omniscient::SearchQuery {
-                text: Some(query),
+                text: Some(query.clone()),
                 category: None,
                 success_only: None,
                 working_dir,
@@ -223,10 +268,7 @@ fn main() -> Result<()> {
             let results = storage.search(&search_query)?;
 
             if results.is_empty() {
-                println!(
-                    "No commands found matching '{}'",
-                    search_query.text.as_ref().unwrap()
-                );
+                println!("No commands found matching '{}'", query);
                 return Ok(());
             }
 
@@ -234,16 +276,16 @@ fn main() -> Result<()> {
             for cmd in results {
                 println!(
                     "[{}] {} {}",
-                    cmd.timestamp.format("%Y-%m-%d %H:%M:%S"),
-                    cmd.status_symbol(),
-                    cmd.command
+                    cmd.timestamp.format("%Y-%m-%d %H:%M:%S").to_string().dimmed(),
+                    colorize_status(&cmd),
+                    highlight_match(&cmd.command, &query)
                 );
                 println!(
                     "  Category: {} | Duration: {} | Usage: {} times | Dir: {}",
-                    cmd.category,
+                    colorize_category(&cmd.category),
                     cmd.duration_display(),
                     cmd.usage_count,
-                    cmd.working_dir
+                    cmd.working_dir.dimmed()
                 );
                 println!();
             }
@@ -279,14 +321,14 @@ fn main() -> Result<()> {
             for cmd in results {
                 println!(
                     "[{}] {} {}",
-                    cmd.timestamp.format("%Y-%m-%d %H:%M:%S"),
-                    cmd.status_symbol(),
+                    cmd.timestamp.format("%Y-%m-%d %H:%M:%S").to_string().dimmed(),
+                    colorize_status(&cmd),
                     cmd.command
                 );
                 println!(
                     "  Dir: {} | Category: {} | Duration: {} | Usage: {} times",
-                    cmd.working_dir,
-                    cmd.category,
+                    cmd.working_dir.dimmed(),
+                    colorize_category(&cmd.category),
                     cmd.duration_display(),
                     cmd.usage_count
                 );
@@ -315,13 +357,13 @@ fn main() -> Result<()> {
             for cmd in results {
                 println!(
                     "[{}] {} {}",
-                    cmd.timestamp.format("%Y-%m-%d %H:%M:%S"),
-                    cmd.status_symbol(),
+                    cmd.timestamp.format("%Y-%m-%d %H:%M:%S").to_string().dimmed(),
+                    colorize_status(&cmd),
                     cmd.command
                 );
                 println!(
                     "  Category: {} | Duration: {} | Usage: {} times",
-                    cmd.category,
+                    colorize_category(&cmd.category),
                     cmd.duration_display(),
                     cmd.usage_count
                 );
@@ -352,12 +394,12 @@ fn main() -> Result<()> {
                     "{}. {} (used {} times)",
                     index + 1,
                     cmd.command,
-                    cmd.usage_count
+                    cmd.usage_count.to_string().bold()
                 );
                 println!(
                     "   Category: {} | Last used: {} | Avg duration: {}",
-                    cmd.category,
-                    cmd.last_used.format("%Y-%m-%d %H:%M:%S"),
+                    colorize_category(&cmd.category),
+                    cmd.last_used.format("%Y-%m-%d %H:%M:%S").to_string().dimmed(),
                     cmd.duration_display()
                 );
                 println!();
@@ -394,15 +436,15 @@ fn main() -> Result<()> {
             for cmd in results {
                 println!(
                     "[{}] {} {}",
-                    cmd.last_used.format("%Y-%m-%d %H:%M:%S"),
-                    cmd.status_symbol(),
+                    cmd.last_used.format("%Y-%m-%d %H:%M:%S").to_string().dimmed(),
+                    colorize_status(&cmd),
                     cmd.command
                 );
                 println!(
                     "  Used {} times | Duration: {} | Dir: {}",
-                    cmd.usage_count,
+                    cmd.usage_count.to_string().bold(),
                     cmd.duration_display(),
-                    cmd.working_dir
+                    cmd.working_dir.dimmed()
                 );
                 println!();
             }
@@ -449,7 +491,9 @@ fn main() -> Result<()> {
                     let percentage = (cat_stat.count as f64 / stats.total_commands as f64) * 100.0;
                     println!(
                         "  {:12} {:5} ({:.1}%)",
-                        cat_stat.category, cat_stat.count, percentage
+                        colorize_category(&cat_stat.category),
+                        cat_stat.count,
+                        percentage
                     );
                 }
             }

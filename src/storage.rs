@@ -232,9 +232,10 @@ impl Storage {
         // Add ordering
         match query.order_by {
             OrderBy::Timestamp => sql.push_str(" ORDER BY timestamp DESC"),
-            OrderBy::UsageCount | OrderBy::Relevance => {
-                sql.push_str(" ORDER BY usage_count DESC, timestamp DESC");
-            }
+            OrderBy::UsageCount => sql.push_str(" ORDER BY usage_count DESC, timestamp DESC"),
+            OrderBy::Relevance => sql.push_str(
+                " ORDER BY CAST(usage_count AS REAL) / ((julianday('now') - julianday(last_used)) * 24.0 + 1.0) DESC, usage_count DESC"
+            ),
         }
 
         sql.push_str(&format!(" LIMIT {}", query.limit));
@@ -309,11 +310,10 @@ impl Storage {
         // Add ordering
         match query.order_by {
             OrderBy::Timestamp => sql.push_str(" ORDER BY timestamp DESC"),
-            OrderBy::UsageCount | OrderBy::Relevance => {
-                // For both usage count and relevance, order by usage count and timestamp
-                // TODO: In the future, could use FTS5 rank() for better relevance scoring
-                sql.push_str(" ORDER BY usage_count DESC, timestamp DESC");
-            }
+            OrderBy::UsageCount => sql.push_str(" ORDER BY usage_count DESC, timestamp DESC"),
+            OrderBy::Relevance => sql.push_str(
+                " ORDER BY CAST(usage_count AS REAL) / ((julianday('now') - julianday(last_used)) * 24.0 + 1.0) DESC, usage_count DESC"
+            ),
         }
 
         sql.push_str(&format!(" LIMIT {}", query.limit));
