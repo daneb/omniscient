@@ -276,7 +276,10 @@ fn main() -> Result<()> {
             for cmd in results {
                 println!(
                     "[{}] {} {}",
-                    cmd.timestamp.format("%Y-%m-%d %H:%M:%S").to_string().dimmed(),
+                    cmd.timestamp
+                        .format("%Y-%m-%d %H:%M:%S")
+                        .to_string()
+                        .dimmed(),
                     colorize_status(&cmd),
                     highlight_match(&cmd.command, &query)
                 );
@@ -321,7 +324,10 @@ fn main() -> Result<()> {
             for cmd in results {
                 println!(
                     "[{}] {} {}",
-                    cmd.timestamp.format("%Y-%m-%d %H:%M:%S").to_string().dimmed(),
+                    cmd.timestamp
+                        .format("%Y-%m-%d %H:%M:%S")
+                        .to_string()
+                        .dimmed(),
                     colorize_status(&cmd),
                     cmd.command
                 );
@@ -357,7 +363,10 @@ fn main() -> Result<()> {
             for cmd in results {
                 println!(
                     "[{}] {} {}",
-                    cmd.timestamp.format("%Y-%m-%d %H:%M:%S").to_string().dimmed(),
+                    cmd.timestamp
+                        .format("%Y-%m-%d %H:%M:%S")
+                        .to_string()
+                        .dimmed(),
                     colorize_status(&cmd),
                     cmd.command
                 );
@@ -399,7 +408,10 @@ fn main() -> Result<()> {
                 println!(
                     "   Category: {} | Last used: {} | Avg duration: {}",
                     colorize_category(&cmd.category),
-                    cmd.last_used.format("%Y-%m-%d %H:%M:%S").to_string().dimmed(),
+                    cmd.last_used
+                        .format("%Y-%m-%d %H:%M:%S")
+                        .to_string()
+                        .dimmed(),
                     cmd.duration_display()
                 );
                 println!();
@@ -436,7 +448,10 @@ fn main() -> Result<()> {
             for cmd in results {
                 println!(
                     "[{}] {} {}",
-                    cmd.last_used.format("%Y-%m-%d %H:%M:%S").to_string().dimmed(),
+                    cmd.last_used
+                        .format("%Y-%m-%d %H:%M:%S")
+                        .to_string()
+                        .dimmed(),
                     colorize_status(&cmd),
                     cmd.command
                 );
