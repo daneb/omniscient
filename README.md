@@ -34,6 +34,7 @@ Valid question. Here's our answer:
 ### Transparency First
 
 - ✅ **100% Open Source**: Every line of code is public and auditable
+- ✅ **No Network Calls**: The binary contains **zero** networking code (no HTTP clients, no telemetry, no sockets) — your data never leaves your machine
 - ✅ **91 Automated Tests**: Comprehensive test coverage validates all functionality
 - ✅ **Zero Clippy Warnings**: Strict linting enforced on every commit
 - ✅ **Security Audits**: Automated `cargo-audit` checks on every push
@@ -317,8 +318,6 @@ max_history_size = 100000
 - Web UI for history browsing
 - AI-powered command suggestions
 
-See [SPECIFICATION.md](SPECIFICATION.md) for detailed feature planning.
-
 ## Contributing
 
 Contributions welcome! Please read our contributing guidelines first.
@@ -424,16 +423,5 @@ Inspired by the need to never lose a useful command again.
 **Version**: 1.0.0
 **Status**: ✅ Production Ready
 **Maintained**: Yes
-**Test Coverage**: 85% (75 tests passing)
+**Automated Tests**: 91 passing
 **Code Quality**: Zero warnings, all clippy lints passed
-
-### What's Working
-- ✅ Command capture with automatic categorization
-- ✅ Full-text search with FTS5
-- ✅ Export/Import with multiple merge strategies
-- ✅ Statistics and analytics
-- ✅ Privacy-first redaction
-- ✅ Zsh shell integration
-- ✅ Comprehensive test suite
-
-Star ⭐ this repo if you find it useful!
