@@ -1,0 +1,11 @@
+{
+  "schema": "keel.run/1",
+  "id": "2026-08-23-f55",
+  "spec": "durable-capture",
+  "keel_version": "0.1.0",
+  "store_hash": "3b372f70c5a428a9e235325ba2a50646a64ed8d77f13762ebe9daf68e1a5abbc",
+  "started_at": "2026-08-23T12:28:37.343336+02:00",
+  "finished_at": "2026-08-23T12:28:42.528255+02:00",
+  "verdict": "fail",
+  "base_commit": "e585c49e195c3f51b4d010ccefdfe0922a8f5097"
+}

@@ -172,6 +172,36 @@ precmd_functions+=(_omniscient_precmd)
         .to_string()
     }
 
+    /// Whether an omniscient hook is present in the user's shell startup files.
+    ///
+    /// Worth asking, because the most complete capture failure is the one where
+    /// no hook was ever installed: nothing errors, nothing is logged, and the
+    /// database simply stays empty.
+    pub fn installed_in(files: &[std::path::PathBuf]) -> Option<std::path::PathBuf> {
+        files.iter().find(|f| {
+            std::fs::read_to_string(f)
+                .map(|c| c.contains("_omniscient_precmd"))
+                .unwrap_or(false)
+        }).cloned()
+    }
+
+    /// The startup files a shell would load a hook from.
+    pub fn candidate_rc_files() -> Vec<std::path::PathBuf> {
+        let home = match std::env::var("HOME") {
+            Ok(h) => std::path::PathBuf::from(h),
+            Err(_) => return Vec::new(),
+        };
+        let zdotdir = std::env::var("ZDOTDIR").ok().map(std::path::PathBuf::from);
+        let base = zdotdir.unwrap_or_else(|| home.clone());
+        vec![
+            base.join(".zshrc"),
+            base.join(".zshenv"),
+            base.join(".zprofile"),
+            home.join(".bashrc"),
+            home.join(".bash_profile"),
+        ]
+    }
+
     /// Auto-detect the current shell
     pub fn detect_shell() -> Result<ShellType> {
         // Check $SHELL environment variable

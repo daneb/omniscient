@@ -41,6 +41,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `zsh/mathfunc` at all; bash uses bash 5's built-in `$EPOCHREALTIME` and falls
   back to a duration of 0 rather than failing.
 
+### Added
+
+- **`omniscient doctor`** — answers "is this actually recording my commands?".
+  Reports the database and its command count, whether a hook is installed in
+  your shell configuration, and how many captures failed in the last 7 days.
+
+- **A capture failure log.** The shell hook runs capture as
+  `... &>/dev/null &!`, so both output streams are discarded and any failure was
+  invisible. Failures are now appended to `capture-failures.log` beside the
+  database, with a timestamp and a reason, capped at 1 MB with the oldest
+  entries dropped first.
+
+### Fixed
+
+- **A broken install could break the prompt.** `capture` propagated errors from
+  config loading and directory creation before it reached its own error
+  handling, so an unreadable home directory or an `.omniscient` path occupied by
+  something else made every prompt exit non-zero. Capture now always exits 0 and
+  records the reason in the failure log.
+
 > **Action required for existing installations.** The hook is generated at
 > install time, so an already-configured shell keeps the old one. Re-run
 > `omniscient init` and replace the omniscient block in your `~/.zshrc` (or

@@ -1,10 +1,10 @@
 {
   "schema": "keel.gate/1",
   "gate": "G1",
-  "run": "2026-08-23-84d",
+  "run": "2026-08-23-78a",
   "spec": "durable-capture",
   "verdict": "pass",
-  "generated_at": "2026-08-23T11:28:13.892234+02:00",
+  "generated_at": "2026-08-23T12:29:22.916618+02:00",
   "checks": [
     {
       "id": "schema",
@@ -14,7 +14,7 @@
     {
       "id": "g0-passed",
       "verdict": "pass",
-      "detail": "G0 passed in run 2026-08-23-9c5"
+      "detail": "G0 passed in run 2026-08-23-bc2"
     },
     {
       "id": "spec-approved",
@@ -44,17 +44,17 @@
     {
       "id": "criteria-covered",
       "verdict": "pass",
-      "detail": "6/6 criteria have a task"
+      "detail": "7/7 criteria have a task"
     },
     {
       "id": "task-budgets",
       "verdict": "pass",
-      "detail": "all 3 tasks budgeted, total 180 lines"
+      "detail": "all 3 tasks budgeted, total 230 lines"
     },
     {
       "id": "total-budget",
       "verdict": "pass",
-      "detail": "180/180 lines"
+      "detail": "230/600 lines"
     },
     {
       "id": "task-exit-conditions",
@@ -84,12 +84,12 @@
     {
       "id": "blast-radius-declared",
       "verdict": "pass",
-      "detail": "5 file(s) at depth 2, 1881 lines"
+      "detail": "6 file(s) at depth 2, 2240 lines"
     },
     {
       "id": "blast-radius-current",
       "verdict": "pass",
-      "detail": "5 files, 1881 lines — matches a fresh computation — no indexed file matches tests/** (new files, or a typo)"
+      "detail": "6 files, 2240 lines — matches a fresh computation — no indexed file matches tests/**, CHANGELOG.md (new files, or a typo)"
     }
   ]
 }

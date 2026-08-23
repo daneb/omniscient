@@ -91,7 +91,10 @@ test = "cargo test --quiet"
 lint = "cargo clippy --all-targets --quiet"
 
 [oracle]
-test_cmd = "cargo test --quiet -- --exact {name}"
+# `cargo test -- --exact missing_test` exits 0 with "0 passed", so a test
+# oracle naming a test that does not exist would pass vacuously. The second
+# clause requires that at least one test actually ran.
+test_cmd = "cargo test --quiet -- --exact {name} && cargo test -- --exact {name} 2>&1 | grep -qE 'test result: ok\\. [1-9][0-9]* passed'"
 doctest_cmd = "cargo test --doc --quiet"
 
 [learn]

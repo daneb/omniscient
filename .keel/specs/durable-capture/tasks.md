@@ -19,8 +19,8 @@ schema: keel.tasks/1
 - exit: a forced failure appears in the log, the log stays under 1 MB, and capture exits 0
 
 ### T-3 Surface the failures in doctor
-- criteria: AC-6
-- files: src/main.rs, tests/cli.rs
-- budget: 40
-- exit: `omniscient doctor` prints the 7-day failure count
+- criteria: AC-6, AC-7
+- files: src/main.rs, src/shell.rs, tests/cli.rs
+- budget: 90
+- exit: doctor prints the 7-day failure count and says whether a hook is installed
 - depends_on: T-2

@@ -1,0 +1,17 @@
+{"t":"2026-08-23T12:28:51.989254+02:00","seq":1,"kind":"run_start","spec":"durable-capture","keel_version":"0.1.0","store_hash":"3b372f70c5a428a9e235325ba2a50646a64ed8d77f13762ebe9daf68e1a5abbc"}
+{"t":"2026-08-23T12:28:51.989355+02:00","seq":2,"kind":"inject","source":".keel/store/steering/conventions.md","tokens":161,"bytes":643}
+{"t":"2026-08-23T12:28:51.989399+02:00","seq":3,"kind":"inject","source":".keel/store/steering/tech.md","tokens":223,"bytes":892}
+{"t":"2026-08-23T12:28:51.989443+02:00","seq":4,"kind":"inject","source":".keel/store/steering/structure.md","tokens":2578,"bytes":10309}
+{"t":"2026-08-23T12:28:51.989668+02:00","seq":5,"kind":"inject","source":".keel/specs/durable-capture/spec.md","tokens":894,"bytes":3573}
+{"t":"2026-08-23T12:28:52.048998+02:00","seq":6,"kind":"command","cmd":"cargo build --quiet","exit_code":0,"evidence":"evidence/build.txt"}
+{"t":"2026-08-23T12:28:53.302322+02:00","seq":7,"kind":"command","cmd":"cargo test --quiet","exit_code":0,"evidence":"evidence/test.txt"}
+{"t":"2026-08-23T12:28:53.411245+02:00","seq":8,"kind":"command","cmd":"cargo clippy --all-targets --quiet","exit_code":0,"evidence":"evidence/lint.txt"}
+{"t":"2026-08-23T12:28:56.708523+02:00","seq":9,"kind":"oracle","criterion":"AC-1","oracle":"test tests/storage.rs::busy_timeout_is_set_before_first_use","verdict":"pass","exit_code":0}
+{"t":"2026-08-23T12:28:56.708574+02:00","seq":10,"kind":"oracle","criterion":"AC-2","oracle":"test tests/storage.rs::sixteen_concurrent_writers_all_persist","verdict":"pass","exit_code":0}
+{"t":"2026-08-23T12:28:56.708614+02:00","seq":11,"kind":"oracle","criterion":"AC-3","oracle":"test tests/capture.rs::a_failed_capture_is_logged","verdict":"pass","exit_code":0}
+{"t":"2026-08-23T12:28:56.708626+02:00","seq":12,"kind":"oracle","criterion":"AC-4","oracle":"test tests/capture.rs::failure_log_is_bounded","verdict":"pass","exit_code":0}
+{"t":"2026-08-23T12:28:56.708634+02:00","seq":13,"kind":"oracle","criterion":"AC-5","oracle":"`sh tests/shell/capture_never_breaks_prompt.sh` exits 0","verdict":"pass","exit_code":0}
+{"t":"2026-08-23T12:28:56.708641+02:00","seq":14,"kind":"oracle","criterion":"AC-6","oracle":"test tests/cli.rs::doctor_reports_recent_capture_failures","verdict":"pass","exit_code":0}
+{"t":"2026-08-23T12:28:56.708648+02:00","seq":15,"kind":"oracle","criterion":"AC-7","oracle":"test tests/cli.rs::doctor_reports_a_missing_hook","verdict":"pass","exit_code":0}
+{"t":"2026-08-23T12:28:56.745114+02:00","seq":16,"kind":"gate","gate":"G2","verdict":"fail","result":"gates/G2.json"}
+{"t":"2026-08-23T12:28:56.745144+02:00","seq":17,"kind":"run_end","verdict":"fail","duration_ms":4766}
