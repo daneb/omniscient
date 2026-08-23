@@ -1,4 +1,4 @@
-<!-- keel:generated schema=keel.projection/1 adapter=kiro store=3b372f70c5a4 body=1f9068239ca2 -->
+<!-- keel:generated schema=keel.projection/1 adapter=kiro store=eb26fc9dc29b body=ce4fcd5946be -->
 <!-- Source of truth: .keel/store/ — regenerate with `keel store render`. Edits here are drift and will be reported by `keel store check`. -->
 
 # Project context
@@ -170,12 +170,8 @@ Files are ordered by import-graph centrality, not alphabetically. Signatures onl
 **`src/shell.rs`** · 359 lines · imported by 1
 - `pub enum ShellType`  <sub>L7</sub>
 - `impl fmt::Display for ShellType`  <sub>L13</sub>
-- `pub struct ShellHook` — Shell hook generator  <sub>L23</sub>
-- `impl ShellHook`  <sub>L27</sub>
-- `pub fn new(shell_type: ShellType) -> Self` — Create a new shell hook generator  <sub>L29</sub>
-- `pub fn generate(&self) -> String` — Generate the shell hook code  <sub>L34</sub>
 
-_… 38 more lines in `.keel/store/steering/structure.md`._
+_… 42 more lines in `.keel/store/steering/structure.md`._
 
 ## What this is
 
@@ -201,3 +197,7 @@ shell unpleasant and gets the tool uninstalled.
 - Being a shell. Omniscient observes; it does not replace history, completion
   or the prompt.
 - Recording anything the shell itself did not run.
+
+## Lessons in force
+
+- **L-0001** (repo) — A spec's `scope:` MUST list every file the work will touch, including CHANGELOG.md when a house rule requires an entry. Widen it deliberately before editing, not after G2 refuses.

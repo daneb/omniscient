@@ -1,4 +1,4 @@
-<!-- keel:generated schema=keel.projection/1 adapter=claude store=3b372f70c5a4 body=c24fff6650e2 -->
+<!-- keel:generated schema=keel.projection/1 adapter=claude store=eb26fc9dc29b body=d124005b4a09 -->
 <!-- Source of truth: .keel/store/ — regenerate with `keel store render`. Edits here are drift and will be reported by `keel store check`. -->
 
 # Project context
@@ -151,10 +151,7 @@ Files are ordered by import-graph centrality, not alphabetically. Signatures onl
 - `pub fn ensure_directories(&self) -> Result<()>` — Ensure all required directories exist  <sub>L140</sub>
 - `mod tests`  <sub>L154</sub>
 
-**`src/redact.rs`** · 214 lines · imported by 2
-- `pub struct RedactionEngine` — Engine for redacting sensitive information from commands  <sub>L6</sub>
-
-_… 59 more lines in `.keel/store/steering/structure.md`._
+_… 62 more lines in `.keel/store/steering/structure.md`._
 
 ## What this is
 
@@ -180,3 +177,7 @@ shell unpleasant and gets the tool uninstalled.
 - Being a shell. Omniscient observes; it does not replace history, completion
   or the prompt.
 - Recording anything the shell itself did not run.
+
+## Lessons in force
+
+- **L-0001** (repo) — A spec's `scope:` MUST list every file the work will touch, including CHANGELOG.md when a house rule requires an entry. Widen it deliberately before editing, not after G2 refuses.

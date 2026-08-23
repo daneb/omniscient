@@ -1,0 +1,38 @@
+[
+  {
+    "id": "2026-08-23-f55#1",
+    "run": "2026-08-23-f55",
+    "spec": "durable-capture",
+    "signal": {
+      "signal": "gate_check",
+      "gate": "G2",
+      "check": "blast-radius",
+      "verdict": "fail",
+      "expected": "diff ⊆ src/storage.rs, src/capture.rs, src/config.rs, src/main.rs, src/shell.rs, tests/**",
+      "actual": "1 outside scope: CHANGELOG.md (+20 -0)"
+    },
+    "attribution": "AGENTIC",
+    "class": "scope-creep",
+    "rationale": "`blast-radius` in G2 is a plan failure",
+    "scope": "repo",
+    "evidence": "evidence/diff-stat.txt"
+  },
+  {
+    "id": "2026-08-23-f55#2",
+    "run": "2026-08-23-f55",
+    "spec": "durable-capture",
+    "signal": {
+      "signal": "gate_check",
+      "gate": "G2",
+      "check": "line-budget",
+      "verdict": "fail",
+      "expected": "at most 260 lines of churn",
+      "actual": "562 lines — raise the budget deliberately or split the work"
+    },
+    "attribution": "AGENTIC",
+    "class": "scope-creep",
+    "rationale": "`line-budget` in G2 is a plan failure",
+    "scope": "repo",
+    "evidence": "evidence/diff-stat.txt"
+  }
+]

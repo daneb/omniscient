@@ -1,0 +1,50 @@
+{
+  "schema": "keel.gate/1",
+  "gate": "G4",
+  "run": "2026-08-23-af3",
+  "spec": "durable-capture",
+  "verdict": "pass",
+  "generated_at": "2026-08-23T14:40:51.344229+02:00",
+  "checks": [
+    {
+      "id": "episodes-classified",
+      "verdict": "pass",
+      "detail": "2 episode(s), all attributed"
+    },
+    {
+      "id": "unattributable-rate",
+      "verdict": "pass",
+      "detail": "0% unattributable (2 AGENTIC), 100% of agentic failures are harness-fixable"
+    },
+    {
+      "id": "candidates-proposed",
+      "verdict": "pass",
+      "detail": "nothing recurring enough to distil"
+    },
+    {
+      "id": "promotion-decisions",
+      "verdict": "pass",
+      "detail": "no candidate is awaiting a decision"
+    },
+    {
+      "id": "no-contradictions",
+      "verdict": "pass",
+      "detail": "1 lesson(s), no overlap"
+    },
+    {
+      "id": "lesson-size",
+      "verdict": "pass",
+      "detail": "all within 12 lines"
+    },
+    {
+      "id": "enforced-share",
+      "verdict": "pass",
+      "detail": "0/1 enforced by a check; still prompts: L-0001"
+    },
+    {
+      "id": "decay-review",
+      "verdict": "pass",
+      "detail": "1 lesson(s) in date"
+    }
+  ]
+}

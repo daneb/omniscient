@@ -18,3 +18,4 @@
 {"t":"2026-08-23T12:29:22.890390+02:00","seq":18,"kind":"human","stage":"spec","decision":"approved","by":"Dane Balia","note":"budget raised to 600; overrun recorded as a spec-sizing signal"}
 {"t":"2026-08-23T12:29:22.910795+02:00","seq":19,"kind":"human","stage":"plan","decision":"approved","by":"Dane Balia"}
 {"t":"2026-08-23T12:29:22.927230+02:00","seq":20,"kind":"human","stage":"merge","decision":"approved","by":"Dane Balia","note":"reviewed"}
+{"t":"2026-08-23T14:40:51.344410+02:00","seq":21,"kind":"gate","gate":"G4","verdict":"pass","result":"gates/G4.json"}
