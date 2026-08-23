@@ -7,6 +7,7 @@ blast:
   declared:
   - src/shell.rs
   - tests/**
+  - CHANGELOG.md
   computed:
   - src/shell.rs
   - src/lib.rs
@@ -36,7 +37,7 @@ Computed from the import graph at depth 2: **2 files, 383 lines**.
 | scope | `src/shell.rs` | 359 |
 | +1 | `src/lib.rs` | 24 |
 
-_Scope globs matching no indexed file (new files, or a typo): tests/**_
+_Scope globs matching no indexed file (new files, or a typo): tests/**, CHANGELOG.md_
 
 ## Rollback
 

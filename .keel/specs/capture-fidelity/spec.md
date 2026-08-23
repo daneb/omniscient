@@ -6,9 +6,10 @@ status: draft
 scope:
   - "src/shell.rs"
   - "tests/**"
+  - "CHANGELOG.md"
 budget:
-  criteria: 6
-  lines: 180
+  criteria: 7
+  lines: 260
 verified_at: 2026-08-23
 ---
 
@@ -74,6 +75,22 @@ THE SYSTEM SHALL generate a bash hook that records the command bash-preexec
 passed to `preexec`, and that does not invoke the `history` builtin.
 
 oracle: cmd `! cargo run --quiet -- init --shell bash 2>/dev/null | grep -q 'history 1'` exit 0
+
+### AC-7 Existing installs are told to re-hook
+
+THE SYSTEM SHALL record in `CHANGELOG.md` that an existing installation must
+re-run `omniscient init` and replace the hook in its shell rc file.
+
+oracle: cmd `grep -q 'omniscient init' CHANGELOG.md` exit 0
+
+## Budget note
+
+Raised from 180 to 240 lines after implementation. The shell harness cost more
+than estimated: it has to load the two zsh modules the hook depends on but never
+loads itself, discover and build the binary, stub `omniscient` on PATH, sandbox
+`HISTFILE` away from the real one, and poll for a capture that is backgrounded
+and disowned so `wait` cannot see it. None of that is optional, and none of it
+is reusable from a Rust test.
 
 ## Out of scope
 

@@ -1,10 +1,10 @@
 {
   "schema": "keel.gate/1",
   "gate": "G1",
-  "run": "2026-08-23-57d",
+  "run": "2026-08-23-ce1",
   "spec": "capture-fidelity",
   "verdict": "pass",
-  "generated_at": "2026-08-23T11:53:17.243096+02:00",
+  "generated_at": "2026-08-23T11:55:37.795158+02:00",
   "checks": [
     {
       "id": "schema",
@@ -14,7 +14,7 @@
     {
       "id": "g0-passed",
       "verdict": "pass",
-      "detail": "G0 passed in run 2026-08-23-be5"
+      "detail": "G0 passed in run 2026-08-23-419"
     },
     {
       "id": "spec-approved",
@@ -24,7 +24,7 @@
     {
       "id": "tasks-present",
       "verdict": "pass",
-      "detail": "3/15 tasks"
+      "detail": "4/15 tasks"
     },
     {
       "id": "task-ids-unique",
@@ -39,22 +39,22 @@
     {
       "id": "task-criterion-traceability",
       "verdict": "pass",
-      "detail": "3 tasks all traced"
+      "detail": "4 tasks all traced"
     },
     {
       "id": "criteria-covered",
       "verdict": "pass",
-      "detail": "6/6 criteria have a task"
+      "detail": "7/7 criteria have a task"
     },
     {
       "id": "task-budgets",
       "verdict": "pass",
-      "detail": "all 3 tasks budgeted, total 170 lines"
+      "detail": "all 4 tasks budgeted, total 200 lines"
     },
     {
       "id": "total-budget",
       "verdict": "pass",
-      "detail": "170/180 lines"
+      "detail": "200/260 lines"
     },
     {
       "id": "task-exit-conditions",
@@ -64,7 +64,7 @@
     {
       "id": "task-dependencies",
       "verdict": "pass",
-      "detail": "2 wave(s), widths 2/1"
+      "detail": "2 wave(s), widths 2/2"
     },
     {
       "id": "wave-isolation",
@@ -89,7 +89,7 @@
     {
       "id": "blast-radius-current",
       "verdict": "pass",
-      "detail": "2 files, 383 lines — matches a fresh computation — no indexed file matches tests/** (new files, or a typo)"
+      "detail": "2 files, 383 lines — matches a fresh computation — no indexed file matches tests/**, CHANGELOG.md (new files, or a typo)"
     }
   ]
 }

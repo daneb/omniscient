@@ -1,0 +1,19 @@
+     2      0  .keel/runs/2026-08-23-acf/evidence/build.txt
+     2      0  .keel/runs/2026-08-23-acf/evidence/lint.txt
+    56      0  .keel/runs/2026-08-23-acf/evidence/oracles.json
+    18      0  .keel/runs/2026-08-23-acf/evidence/test.txt
+     9      0  .keel/runs/2026-08-23-acf/run.json
+    14      0  .keel/runs/2026-08-23-acf/trajectory.jsonl
+     3      0  .keel/runs/2026-08-23-e2b/trajectory.jsonl
+     3      0  .keel/specs/capture-fidelity/approvals.jsonl
+     4      4  .keel/specs/capture-fidelity/gates/G0.json
+     4      4  .keel/specs/capture-fidelity/gates/G1.json
+    10      1  .keel/specs/capture-fidelity/spec.md
+    43     21  src/shell.rs
+    93      0  tests/shell/_lib.zsh
+    13      0  tests/shell/bare_prompt.zsh
+    16      0  tests/shell/ignore_dups.zsh
+    21      0  tests/shell/ignore_space.zsh
+    23      0  tests/shell/share_history.zsh
+
+17 file(s), +334 -30 (364 lines of churn) against 83b6c240ec2ddcf78e8974b1615753b14ab58331

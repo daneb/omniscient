@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- **Commands were silently missed, especially across multiple terminals.** The
+  shell hook read the command back from shell *history* in `precmd` rather than
+  taking it from `preexec`, which is handed the command directly. History is not
+  a record of the current session:
+  - `SHARE_HISTORY` imports other sessions before each prompt, so the hook could
+    record a command typed in a **different terminal**.
+  - `HIST_IGNORE_SPACE` keeps space-prefixed commands out of history entirely,
+    so the *previous* command was recorded a second time and the real one lost.
+  - `HIST_IGNORE_DUPS` suppressed repeats, so a command run twice was timed
+    against the wrong execution.
+  - A shell that had not yet run a command had no history to read, so the first
+    command in a new terminal could be missed.
+
+  Both the zsh and bash hooks now take the command from `preexec`'s argument,
+  which no history option can affect. Covered by shell-level tests under
+  `tests/shell/` that run the generated hook with each option set.
+
+> **Action required for existing installations.** The hook is generated at
+> install time, so an already-configured shell keeps the old one. Re-run
+> `omniscient init` and replace the omniscient block in your `~/.zshrc` (or
+> `~/.bashrc`), then start a new shell.
+
 ## [1.2.4] - 2026-02-17
 
 ### Fixed

@@ -14,3 +14,10 @@
 {"t":"2026-08-23T11:53:34.366173+02:00","seq":14,"kind":"oracle","criterion":"AC-6","oracle":"`! cargo run --quiet -- init --shell bash 2>/dev/null | grep -q 'history 1'` exits 0","verdict":"pass","exit_code":0}
 {"t":"2026-08-23T11:53:34.408207+02:00","seq":15,"kind":"gate","gate":"G2","verdict":"fail","result":"gates/G2.json"}
 {"t":"2026-08-23T11:53:34.408234+02:00","seq":16,"kind":"run_end","verdict":"fail","duration_ms":2434}
+{"t":"2026-08-23T11:54:22.979230+02:00","seq":17,"kind":"human","stage":"spec","decision":"approved","by":"Dane Balia","note":"budget raised to 240, reason recorded in the spec"}
+{"t":"2026-08-23T11:54:22.994661+02:00","seq":18,"kind":"human","stage":"plan","decision":"approved","by":"Dane Balia"}
+{"t":"2026-08-23T11:54:23.013180+02:00","seq":19,"kind":"human","stage":"merge","decision":"approved","by":"Dane Balia","note":"tests demonstrated failing before the fix"}
+{"t":"2026-08-23T11:55:21.405107+02:00","seq":20,"kind":"human","stage":"spec","decision":"approved","by":"Dane Balia","note":"AC-7 added: house rule requires stating the re-init"}
+{"t":"2026-08-23T11:55:21.420340+02:00","seq":21,"kind":"human","stage":"plan","decision":"approved","by":"Dane Balia"}
+{"t":"2026-08-23T11:55:37.789115+02:00","seq":22,"kind":"human","stage":"plan","decision":"approved","by":"Dane Balia","note":"T-4 added for the changelog"}
+{"t":"2026-08-23T11:55:37.806062+02:00","seq":23,"kind":"human","stage":"merge","decision":"approved","by":"Dane Balia","note":"reviewed; the stub observes the hook rather than replacing it"}

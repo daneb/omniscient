@@ -1,0 +1,11 @@
+{
+  "schema": "keel.run/1",
+  "id": "2026-08-23-acf",
+  "spec": "capture-fidelity",
+  "keel_version": "0.1.0",
+  "store_hash": "3b372f70c5a428a9e235325ba2a50646a64ed8d77f13762ebe9daf68e1a5abbc",
+  "started_at": "2026-08-23T11:54:23.018340+02:00",
+  "finished_at": "2026-08-23T11:54:25.439297+02:00",
+  "verdict": "blocked",
+  "base_commit": "83b6c240ec2ddcf78e8974b1615753b14ab58331"
+}

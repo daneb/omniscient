@@ -1,10 +1,10 @@
 {
   "schema": "keel.gate/1",
   "gate": "G0",
-  "run": "2026-08-23-be5",
+  "run": "2026-08-23-419",
   "spec": "capture-fidelity",
   "verdict": "pass",
-  "generated_at": "2026-08-23T11:53:17.200236+02:00",
+  "generated_at": "2026-08-23T11:55:21.393099+02:00",
   "checks": [
     {
       "id": "schema",
@@ -14,7 +14,7 @@
     {
       "id": "criteria-present",
       "verdict": "pass",
-      "detail": "6 criteria"
+      "detail": "7 criteria"
     },
     {
       "id": "criterion-ids-unique",
@@ -29,12 +29,12 @@
     {
       "id": "ears-conformance",
       "verdict": "pass",
-      "detail": "6/6 conform (state-driven, ubiquitous, unwanted-behaviour)"
+      "detail": "7/7 conform (state-driven, ubiquitous, unwanted-behaviour)"
     },
     {
       "id": "oracle-presence",
       "verdict": "pass",
-      "detail": "6 oracles across 6 criteria"
+      "detail": "7 oracles across 7 criteria"
     },
     {
       "id": "oracle-wellformed",
@@ -49,27 +49,27 @@
     {
       "id": "criterion-budget",
       "verdict": "pass",
-      "detail": "6/6 criteria"
+      "detail": "7/7 criteria"
     },
     {
       "id": "spec-length",
       "verdict": "pass",
-      "detail": "81/250 lines"
+      "detail": "98/250 lines"
     },
     {
       "id": "scope-declared",
       "verdict": "pass",
-      "detail": "2 glob(s): src/shell.rs, tests/**"
+      "detail": "3 glob(s): src/shell.rs, tests/**, CHANGELOG.md"
     },
     {
       "id": "change-budget",
       "verdict": "pass",
-      "detail": "180 lines of diff budgeted"
+      "detail": "260 lines of diff budgeted"
     },
     {
       "id": "oracle-mix",
       "verdict": "pass",
-      "detail": "6/6 runnable (6 cmd)"
+      "detail": "7/7 runnable (7 cmd)"
     },
     {
       "id": "human-cost",
