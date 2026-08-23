@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.3.0] - 2026-08-23
 
+### Added
+
+- **`omniscient doctor`** — answers "is this actually recording my commands?".
+  Reports the database and its command count, whether a hook is installed in
+  your shell configuration, and how many captures failed in the last 7 days.
+
+- **A capture failure log.** The shell hook runs capture as
+  `... &>/dev/null &!`, so both output streams are discarded and any failure was
+  invisible. Failures are now appended to `capture-failures.log` beside the
+  database, with a timestamp and a reason, capped at 1 MB with the oldest
+  entries dropped first.
+
+- **A short name.** `omni` is installed alongside `omniscient` and is the same
+  CLI — one binary target, two names. `omni search foo` beats
+  `omniscient search foo` several times a day, which for a tool whose value is
+  recall is the difference between reaching for it and not. The shell hook
+  deliberately still invokes `omniscient`, so an install of only the long name
+  keeps capturing.
+
 ### Fixed
 
 - **Commands were silently missed, especially across multiple terminals.** The
@@ -40,27 +59,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   is a lost one. zsh loads `zsh/datetime` itself and no longer needs
   `zsh/mathfunc` at all; bash uses bash 5's built-in `$EPOCHREALTIME` and falls
   back to a duration of 0 rather than failing.
-
-### Added
-
-- **`omniscient doctor`** — answers "is this actually recording my commands?".
-  Reports the database and its command count, whether a hook is installed in
-  your shell configuration, and how many captures failed in the last 7 days.
-
-- **A capture failure log.** The shell hook runs capture as
-  `... &>/dev/null &!`, so both output streams are discarded and any failure was
-  invisible. Failures are now appended to `capture-failures.log` beside the
-  database, with a timestamp and a reason, capped at 1 MB with the oldest
-  entries dropped first.
-
-- **A short name.** `omni` is installed alongside `omniscient` and is the same
-  CLI — one binary target, two names. `omni search foo` beats
-  `omniscient search foo` several times a day, which for a tool whose value is
-  recall is the difference between reaching for it and not. The shell hook
-  deliberately still invokes `omniscient`, so an install of only the long name
-  keeps capturing.
-
-### Fixed
 
 - **A broken install could break the prompt.** `capture` propagated errors from
   config loading and directory creation before it reached its own error
