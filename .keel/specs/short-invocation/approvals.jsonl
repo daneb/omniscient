@@ -1,0 +1,2 @@
+{"schema":"keel.approval/1","stage":"spec","decision":"approved","artefact_hash":"86a0b29c05341a3a5adbb2316c8cd3899b95c02da210977803b2d7f688871d6b","gate_verdict":"pass","by":"Dane Balia","at":"2026-08-23T11:27:17.193162+02:00","note":"root cause confirmed against the running shell"}
+{"schema":"keel.approval/1","stage":"plan","decision":"approved","artefact_hash":"e96a3e87d31fa7a614d70eee98ea05b3e2b4df432b248d8049e064e62db76ff4","by":"Dane Balia","at":"2026-08-23T11:27:46.889432+02:00","note":"bounded; rollback is a revert"}

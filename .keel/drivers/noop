@@ -1,0 +1,7 @@
+#!/bin/sh
+# keel driver — the null driver. Reads a task, changes nothing, reports ok.
+#
+# Not useful for work; useful as the fixed point of the conformance suite. If
+# `keel driver check noop` ever fails, the harness is wrong, not the driver.
+cat > /dev/null
+echo '{"schema":"keel.driverresult/1","status":"ok","files_changed":[],"detail":"null driver: no work attempted"}'

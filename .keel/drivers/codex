@@ -1,0 +1,27 @@
+#!/bin/sh
+# keel driver — OpenAI Codex CLI.
+#
+# The adapter that tested PLAN.md §6's claim: Codex takes its prompt as an argv
+# positional rather than on stdin, and the contract did not have to move.
+#
+# ── INVOCATION ─────────────────────────────────────────────────────────────
+#   codex exec --skip-git-repo-check "<prompt>"
+# `exec` is Codex's non-interactive mode; the prompt is positional.
+# ───────────────────────────────────────────────────────────────────────────
+set -u
+. "$(dirname "$0")/_common.sh"
+
+task=$(cat)
+
+keel_require python3
+keel_require codex "npm install -g @openai/codex"
+
+prompt=$(keel_prompt "$task") || { keel_emit blocked "could not read the task JSON"; exit 0; }
+before=$(keel_dirty_count)
+
+if ! out=$(codex exec --skip-git-repo-check "$prompt" 2>&1); then
+  keel_emit blocked "codex exited non-zero: $(printf '%s' "$out" | tail -c 400)"
+  exit 0
+fi
+
+keel_finish "$before" "codex" "$task"

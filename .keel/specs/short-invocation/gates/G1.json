@@ -1,0 +1,95 @@
+{
+  "schema": "keel.gate/1",
+  "gate": "G1",
+  "run": "2026-08-23-3da",
+  "spec": "short-invocation",
+  "verdict": "pass",
+  "generated_at": "2026-08-23T11:27:46.893871+02:00",
+  "checks": [
+    {
+      "id": "schema",
+      "verdict": "pass",
+      "detail": "PLAN-0003 + TASKS-0003"
+    },
+    {
+      "id": "g0-passed",
+      "verdict": "pass",
+      "detail": "G0 passed in run 2026-08-23-265"
+    },
+    {
+      "id": "spec-approved",
+      "verdict": "pass",
+      "detail": "approved by Dane Balia"
+    },
+    {
+      "id": "tasks-present",
+      "verdict": "pass",
+      "detail": "2/15 tasks"
+    },
+    {
+      "id": "task-ids-unique",
+      "verdict": "pass",
+      "detail": "no duplicate task ids"
+    },
+    {
+      "id": "task-fields",
+      "verdict": "pass",
+      "detail": "all task fields recognised"
+    },
+    {
+      "id": "task-criterion-traceability",
+      "verdict": "pass",
+      "detail": "2 tasks all traced"
+    },
+    {
+      "id": "criteria-covered",
+      "verdict": "pass",
+      "detail": "5/5 criteria have a task"
+    },
+    {
+      "id": "task-budgets",
+      "verdict": "pass",
+      "detail": "all 2 tasks budgeted, total 110 lines"
+    },
+    {
+      "id": "total-budget",
+      "verdict": "pass",
+      "detail": "110/150 lines"
+    },
+    {
+      "id": "task-exit-conditions",
+      "verdict": "pass",
+      "detail": "every task states when it is done"
+    },
+    {
+      "id": "task-dependencies",
+      "verdict": "pass",
+      "detail": "2 wave(s), widths 1/1"
+    },
+    {
+      "id": "wave-isolation",
+      "verdict": "pass",
+      "detail": "2 wave(s), no file claimed twice within one"
+    },
+    {
+      "id": "task-files-in-scope",
+      "verdict": "pass",
+      "detail": "all task files inside the declared scope"
+    },
+    {
+      "id": "rollback-stated",
+      "verdict": "pass",
+      "detail": "git revert the commit; the long name is untouched, so an ex…"
+    },
+    {
+      "id": "blast-radius-declared",
+      "verdict": "pass",
+      "detail": "1 file(s) at depth 2, 598 lines"
+    },
+    {
+      "id": "blast-radius-current",
+      "verdict": "pass",
+      "detail": "1 files, 598 lines — matches a fresh computation — no indexed file matches Cargo.toml, install.sh, uninstall.sh, tests/** (new files, or a typo)"
+    }
+  ]
+}

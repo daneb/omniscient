@@ -1,0 +1,24 @@
+#!/bin/sh
+# keel driver — Claude Code, headless.
+#
+# ── INVOCATION ─────────────────────────────────────────────────────────────
+#   claude --print "<prompt>"
+# `--print` runs headless; keel owns the gating, so no approval UI is needed.
+# ───────────────────────────────────────────────────────────────────────────
+set -u
+. "$(dirname "$0")/_common.sh"
+
+task=$(cat)
+
+keel_require python3
+keel_require claude "https://claude.com/claude-code"
+
+prompt=$(keel_prompt "$task") || { keel_emit blocked "could not read the task JSON"; exit 0; }
+before=$(keel_dirty_count)
+
+if ! out=$(printf '%s' "$prompt" | claude --print 2>&1); then
+  keel_emit blocked "claude exited non-zero: $(printf '%s' "$out" | tail -c 400)"
+  exit 0
+fi
+
+keel_finish "$before" "claude" "$task"

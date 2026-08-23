@@ -1,2 +1,7 @@
 /target
 .DS_Store
+
+# keel: the symbol index is a build artefact, rebuilt by `keel map`
+.keel/store/map/index.sqlite
+.keel/store/map/*.sqlite-*
+.keel/store/map/index.sqlite.tmp
