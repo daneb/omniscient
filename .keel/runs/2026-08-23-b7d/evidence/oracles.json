@@ -1,0 +1,49 @@
+{
+  "runs": [
+    {
+      "criterion": "AC-1",
+      "kind": "cmd",
+      "oracle": "`cargo build --quiet && test -x target/debug/omni` exits 0",
+      "outcome": "pass",
+      "exit_code": 0
+    },
+    {
+      "criterion": "AC-2",
+      "kind": "test",
+      "oracle": "test tests/cli.rs::omni_and_omniscient_are_equivalent",
+      "outcome": "pass",
+      "exit_code": 0,
+      "output": "\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 91 filtered out; finished in 0.00s\n\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 3 filtered out; finished in 0.00s\n\n\nrunning 1 test\n.\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 4 filtered out; finished in 0.45s\n\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 2 filtered out; finished in 0.00s\n\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 1 filtered out; finished in 0.00s"
+    },
+    {
+      "criterion": "AC-3",
+      "kind": "cmd",
+      "oracle": "`bash tests/install/both_names_installed.sh` exits 0",
+      "outcome": "pass",
+      "exit_code": 0,
+      "output": "PASS: install.sh installs both names, and both are build targets"
+    },
+    {
+      "criterion": "AC-4",
+      "kind": "cmd",
+      "oracle": "`bash tests/install/both_names_removed.sh` exits 0",
+      "outcome": "pass",
+      "exit_code": 0,
+      "output": "PASS: uninstall removes both names"
+    },
+    {
+      "criterion": "AC-5",
+      "kind": "test",
+      "oracle": "test tests/cli.rs::the_hook_invokes_the_long_name",
+      "outcome": "pass",
+      "exit_code": 0,
+      "output": "\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 91 filtered out; finished in 0.00s\n\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 3 filtered out; finished in 0.00s\n\n\nrunning 1 test\n.\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 4 filtered out; finished in 0.20s\n\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 2 filtered out; finished in 0.00s\n\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 1 filtered out; finished in 0.00s"
+    }
+  ],
+  "criteria": 5,
+  "executed": 5,
+  "passed": 5,
+  "failed": 0,
+  "blocked": 0,
+  "human": 0
+}

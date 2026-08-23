@@ -1,10 +1,10 @@
 {
   "schema": "keel.gate/1",
   "gate": "G1",
-  "run": "2026-08-23-3da",
+  "run": "2026-08-23-c64",
   "spec": "short-invocation",
   "verdict": "pass",
-  "generated_at": "2026-08-23T11:27:46.893871+02:00",
+  "generated_at": "2026-08-23T14:39:40.215238+02:00",
   "checks": [
     {
       "id": "schema",
@@ -14,7 +14,7 @@
     {
       "id": "g0-passed",
       "verdict": "pass",
-      "detail": "G0 passed in run 2026-08-23-265"
+      "detail": "G0 passed in run 2026-08-23-e84"
     },
     {
       "id": "spec-approved",
@@ -54,7 +54,7 @@
     {
       "id": "total-budget",
       "verdict": "pass",
-      "detail": "110/150 lines"
+      "detail": "110/220 lines"
     },
     {
       "id": "task-exit-conditions",
@@ -89,7 +89,7 @@
     {
       "id": "blast-radius-current",
       "verdict": "pass",
-      "detail": "1 files, 598 lines — matches a fresh computation — no indexed file matches Cargo.toml, install.sh, uninstall.sh, tests/** (new files, or a typo)"
+      "detail": "1 files, 598 lines — matches a fresh computation — no indexed file matches Cargo.toml, install.sh, uninstall.sh, tests/**, CHANGELOG.md (new files, or a typo)"
     }
   ]
 }

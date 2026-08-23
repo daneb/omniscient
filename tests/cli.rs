@@ -7,6 +7,10 @@ fn bin() -> PathBuf {
     PathBuf::from(env!("CARGO_BIN_EXE_omniscient"))
 }
 
+fn short_bin() -> PathBuf {
+    PathBuf::from(env!("CARGO_BIN_EXE_omni"))
+}
+
 fn sandbox(name: &str) -> PathBuf {
     let dir = std::env::temp_dir().join(format!(
         "omniscient-cli-{name}-{}-{:?}",
@@ -91,4 +95,68 @@ fn doctor_recognises_an_installed_hook() {
         "doctor did not recognise an installed hook:\n{out}"
     );
     assert!(!out.contains("NOT INSTALLED"), "{out}");
+}
+
+/// AC-2 — one CLI, two names.
+///
+/// The usage line legitimately differs: clap reads argv[0], and `omni --help`
+/// should say `omni`. Everything else must match, or the short name is a second
+/// program that will drift.
+#[test]
+fn omni_and_omniscient_are_equivalent() {
+    let home = sandbox("equivalent");
+
+    for args in [vec!["--help"], vec!["doctor"], vec!["stats"], vec!["--version"]] {
+        let run = |exe: &PathBuf| {
+            let out = Command::new(exe)
+                .args(&args)
+                .env("HOME", &home)
+                .env_remove("ZDOTDIR")
+                .output()
+                .expect("running");
+            (
+                out.status.code(),
+                format!(
+                    "{}{}",
+                    String::from_utf8_lossy(&out.stdout),
+                    String::from_utf8_lossy(&out.stderr)
+                ),
+            )
+        };
+
+        let (long_status, long_out) = run(&bin());
+        let (short_status, short_out) = run(&short_bin());
+
+        assert_eq!(
+            long_status, short_status,
+            "exit status differs for {args:?}: {long_status:?} vs {short_status:?}"
+        );
+
+        // Normalise the program's own name out of both before comparing.
+        let normalise = |s: &str| s.replace("omniscient", "NAME").replace("omni", "NAME");
+        assert_eq!(
+            normalise(&long_out),
+            normalise(&short_out),
+            "output differs for {args:?} beyond the program name"
+        );
+    }
+}
+
+/// AC-5 — the hook does not depend on the short name.
+///
+/// An install that only placed `omniscient` must keep capturing. Generating a
+/// hook that calls `omni` would make capture depend on a convenience.
+#[test]
+fn the_hook_invokes_the_long_name() {
+    for shell in ["zsh", "bash"] {
+        let out = Command::new(bin())
+            .args(["init", "--shell", shell])
+            .output()
+            .expect("running init");
+        let hook = String::from_utf8_lossy(&out.stdout);
+        assert!(
+            hook.contains("omniscient capture"),
+            "the {shell} hook does not invoke the long name"
+        );
+    }
 }

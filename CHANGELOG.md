@@ -53,6 +53,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   database, with a timestamp and a reason, capped at 1 MB with the oldest
   entries dropped first.
 
+- **A short name.** `omni` is installed alongside `omniscient` and is the same
+  CLI — one binary target, two names. `omni search foo` beats
+  `omniscient search foo` several times a day, which for a tool whose value is
+  recall is the difference between reaching for it and not. The shell hook
+  deliberately still invokes `omniscient`, so an install of only the long name
+  keeps capturing.
+
 ### Fixed
 
 - **A broken install could break the prompt.** `capture` propagated errors from

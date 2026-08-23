@@ -1,10 +1,10 @@
 {
   "schema": "keel.gate/1",
   "gate": "G0",
-  "run": "2026-08-23-265",
+  "run": "2026-08-23-e84",
   "spec": "short-invocation",
   "verdict": "pass",
-  "generated_at": "2026-08-23T11:27:17.185301+02:00",
+  "generated_at": "2026-08-23T14:39:40.180944+02:00",
   "checks": [
     {
       "id": "schema",
@@ -54,22 +54,22 @@
     {
       "id": "spec-length",
       "verdict": "pass",
-      "detail": "70/250 lines"
+      "detail": "79/250 lines"
     },
     {
       "id": "scope-declared",
       "verdict": "pass",
-      "detail": "5 glob(s): Cargo.toml, src/main.rs, install.sh, uninstall.sh, tests/**"
+      "detail": "6 glob(s): Cargo.toml, src/main.rs, install.sh, uninstall.sh, tests/**, CHANGELOG.md"
     },
     {
       "id": "change-budget",
       "verdict": "pass",
-      "detail": "150 lines of diff budgeted"
+      "detail": "220 lines of diff budgeted"
     },
     {
       "id": "oracle-mix",
       "verdict": "pass",
-      "detail": "5/5 runnable (4 cmd, 1 test)"
+      "detail": "5/5 runnable (3 cmd, 2 test)"
     },
     {
       "id": "human-cost",

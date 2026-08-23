@@ -10,10 +10,11 @@ blast:
   - install.sh
   - uninstall.sh
   - tests/**
+  - CHANGELOG.md
   computed:
   - src/main.rs
   computed_lines: 598
-rollback: 'git revert the commit; the long name is untouched, so an existing install keeps working'
+rollback: git revert the commit; the long name is untouched, so an existing install keeps working
 verified_at: 2026-08-23
 ---
 
@@ -36,8 +37,7 @@ Computed from the import graph at depth 2: **1 files, 598 lines**.
 | --- | --- | --- |
 | scope | `src/main.rs` | 598 |
 
-_Scope globs matching no indexed file (new files, or a typo): Cargo.toml, install.sh, uninstall.sh, tests/**_
-
+_Scope globs matching no indexed file (new files, or a typo): Cargo.toml, install.sh, uninstall.sh, tests/**, CHANGELOG.md_
 
 ## Rollback
 

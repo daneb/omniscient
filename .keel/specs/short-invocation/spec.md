@@ -9,9 +9,10 @@ scope:
   - "install.sh"
   - "uninstall.sh"
   - "tests/**"
+  - "CHANGELOG.md"
 budget:
   criteria: 5
-  lines: 150
+  lines: 220
 verified_at: 2026-08-23
 ---
 
@@ -40,7 +41,8 @@ oracle: cmd `cargo build --quiet && test -x target/debug/omni` exit 0
 ### AC-2 The two names behave identically
 
 WHEN the same arguments are given to `omni` and to `omniscient` THE SYSTEM
-SHALL produce the same output and the same exit status.
+SHALL produce the same output and the same exit status, apart from occurrences
+of the program's own name in usage text.
 
 oracle: test tests/cli.rs::omni_and_omniscient_are_equivalent
 
@@ -49,20 +51,27 @@ oracle: test tests/cli.rs::omni_and_omniscient_are_equivalent
 WHEN `install.sh` completes THE SYSTEM SHALL place both `omni` and
 `omniscient` on the user's PATH.
 
-oracle: cmd `sh tests/install/both_names_installed.sh` exit 0
+oracle: cmd `bash tests/install/both_names_installed.sh` exit 0
 
 ### AC-4 Uninstalling removes both
 
 WHEN `uninstall.sh` completes THE SYSTEM SHALL remove both names.
 
-oracle: cmd `sh tests/install/both_names_removed.sh` exit 0
+oracle: cmd `bash tests/install/both_names_removed.sh` exit 0
 
 ### AC-5 The shell hook does not depend on the short name
 
 THE SYSTEM SHALL generate hook code that invokes `omniscient`, so that an
 install without the short name keeps capturing.
 
-oracle: cmd `grep -q 'omniscient capture' src/shell.rs` exit 0
+oracle: test tests/cli.rs::the_hook_invokes_the_long_name
+
+## Budget note
+
+Raised from 150 to 220. The equivalence test costs more than a name change
+suggests: it runs four argument sets through both binaries and normalises the
+program's own name out of the output before comparing, which is the only way to
+assert "same behaviour" for something that legitimately prints its own name.
 
 ## Out of scope
 

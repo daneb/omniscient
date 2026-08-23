@@ -1,0 +1,17 @@
+{"t":"2026-08-23T14:39:40.235460+02:00","seq":1,"kind":"run_start","spec":"short-invocation","keel_version":"0.1.0","store_hash":"3b372f70c5a428a9e235325ba2a50646a64ed8d77f13762ebe9daf68e1a5abbc"}
+{"t":"2026-08-23T14:39:40.235521+02:00","seq":2,"kind":"inject","source":".keel/store/steering/conventions.md","tokens":161,"bytes":643}
+{"t":"2026-08-23T14:39:40.235546+02:00","seq":3,"kind":"inject","source":".keel/store/steering/tech.md","tokens":223,"bytes":892}
+{"t":"2026-08-23T14:39:40.235572+02:00","seq":4,"kind":"inject","source":".keel/store/steering/structure.md","tokens":2578,"bytes":10309}
+{"t":"2026-08-23T14:39:40.235682+02:00","seq":5,"kind":"inject","source":".keel/specs/short-invocation/spec.md","tokens":584,"bytes":2335}
+{"t":"2026-08-23T14:39:40.286647+02:00","seq":6,"kind":"command","cmd":"cargo build --quiet","exit_code":0,"evidence":"evidence/build.txt"}
+{"t":"2026-08-23T14:39:42.429092+02:00","seq":7,"kind":"command","cmd":"cargo test --quiet","exit_code":0,"evidence":"evidence/test.txt"}
+{"t":"2026-08-23T14:39:42.551928+02:00","seq":8,"kind":"command","cmd":"cargo clippy --all-targets --quiet","exit_code":0,"evidence":"evidence/lint.txt"}
+{"t":"2026-08-23T14:39:44.351091+02:00","seq":9,"kind":"oracle","criterion":"AC-1","oracle":"`cargo build --quiet && test -x target/debug/omni` exits 0","verdict":"pass","exit_code":0}
+{"t":"2026-08-23T14:39:44.351134+02:00","seq":10,"kind":"oracle","criterion":"AC-2","oracle":"test tests/cli.rs::omni_and_omniscient_are_equivalent","verdict":"pass","exit_code":0}
+{"t":"2026-08-23T14:39:44.351144+02:00","seq":11,"kind":"oracle","criterion":"AC-3","oracle":"`bash tests/install/both_names_installed.sh` exits 0","verdict":"pass","exit_code":0}
+{"t":"2026-08-23T14:39:44.351150+02:00","seq":12,"kind":"oracle","criterion":"AC-4","oracle":"`bash tests/install/both_names_removed.sh` exits 0","verdict":"pass","exit_code":0}
+{"t":"2026-08-23T14:39:44.351155+02:00","seq":13,"kind":"oracle","criterion":"AC-5","oracle":"test tests/cli.rs::the_hook_invokes_the_long_name","verdict":"pass","exit_code":0}
+{"t":"2026-08-23T14:39:44.395662+02:00","seq":14,"kind":"gate","gate":"G2","verdict":"pass","result":"gates/G2.json"}
+{"t":"2026-08-23T14:39:44.428370+02:00","seq":15,"kind":"gate","gate":"G2.5","verdict":"pass","result":"gates/G2.5.json"}
+{"t":"2026-08-23T14:39:44.442943+02:00","seq":16,"kind":"gate","gate":"G3","verdict":"pass","result":"gates/G3.json"}
+{"t":"2026-08-23T14:39:44.442976+02:00","seq":17,"kind":"run_end","verdict":"pass","duration_ms":4213}
