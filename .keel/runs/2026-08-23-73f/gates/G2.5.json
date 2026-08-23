@@ -1,0 +1,36 @@
+{
+  "schema": "keel.gate/1",
+  "gate": "G2.5",
+  "run": "2026-08-23-962",
+  "spec": "hook-portability",
+  "verdict": "blocked",
+  "generated_at": "2026-08-23T12:06:42.371639+02:00",
+  "checks": [
+    {
+      "id": "test-invalidation",
+      "verdict": "blocked",
+      "detail": "4 added line(s) mock or weaken behaviour — confirm the test still tests: tests/shell/duration_is_integer.zsh: cat > \"$OMNI_TMP/bin/omniscient\" <<STUB, tests/shell/duration_is_integer.zsh: STUB, tests/shell/no_subsecond_clock.sh: cat > \"$tmp/bin/omniscient\" <<STUB, … and 1 more",
+      "evidence": "evidence/review-test-invalidation.txt"
+    },
+    {
+      "id": "test-movement",
+      "verdict": "pass",
+      "detail": "2 code file(s), 4 test file(s)"
+    },
+    {
+      "id": "conventions",
+      "verdict": "pass",
+      "detail": "7 house rule(s) in force"
+    },
+    {
+      "id": "lessons",
+      "verdict": "pass",
+      "detail": "no lessons in force yet (Phase 3 populates these)"
+    },
+    {
+      "id": "reviewer",
+      "verdict": "pass",
+      "detail": "no adversarial reviewer configured — the heuristics above are the whole pass"
+    }
+  ]
+}

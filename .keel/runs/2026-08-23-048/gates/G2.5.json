@@ -1,0 +1,36 @@
+{
+  "schema": "keel.gate/1",
+  "gate": "G2.5",
+  "run": "2026-08-23-eb4",
+  "spec": "short-invocation",
+  "verdict": "pass",
+  "generated_at": "2026-08-23T14:40:04.634239+02:00",
+  "checks": [
+    {
+      "id": "test-invalidation",
+      "verdict": "pass",
+      "detail": "no mocks or weakened assertions added",
+      "evidence": "evidence/review-test-invalidation.txt"
+    },
+    {
+      "id": "test-movement",
+      "verdict": "pass",
+      "detail": "4 code file(s), 4 test file(s)"
+    },
+    {
+      "id": "conventions",
+      "verdict": "pass",
+      "detail": "7 house rule(s) in force"
+    },
+    {
+      "id": "lessons",
+      "verdict": "pass",
+      "detail": "no lessons in force yet (Phase 3 populates these)"
+    },
+    {
+      "id": "reviewer",
+      "verdict": "pass",
+      "detail": "no adversarial reviewer configured — the heuristics above are the whole pass"
+    }
+  ]
+}

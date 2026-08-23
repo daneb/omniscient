@@ -22,6 +22,9 @@ enum Commands {
         shell: Option<String>,
     },
 
+    /// Report whether omniscient is actually recording
+    Doctor,
+
     /// Capture a command (internal use by shell hook)
     Capture {
         /// Exit code of the command
@@ -194,9 +197,29 @@ fn resolve_directory(dir_arg: Option<String>) -> Result<String> {
 fn main() -> Result<()> {
     let cli = Cli::parse();
 
-    // Load configuration
-    let config = Config::load()?;
-    config.ensure_directories()?;
+    // Load configuration.
+    //
+    // `capture` runs on every prompt and must never change the exit status,
+    // which means setup failing is not allowed to be fatal either. A home
+    // directory that cannot be read, or an .omniscient path occupied by
+    // something else, would otherwise turn a broken install into a broken shell.
+    let config = match Config::load().and_then(|c| c.ensure_directories().map(|_| c)) {
+        Ok(c) => c,
+        Err(e) => {
+            if let Commands::Capture { command, .. } = &cli.command {
+                // Best effort: without a config the log path is a guess, and
+                // logging is infallible by design.
+                omniscient::capture::log_capture_failure(
+                    &Config::default(),
+                    command,
+                    &format!("could not start: {e}"),
+                );
+                eprintln!("omniscient: capture error: could not start: {e}");
+                return Ok(());
+            }
+            return Err(e);
+        }
+    };
 
     match cli.command {
         Commands::Init { shell } => {
@@ -225,18 +248,68 @@ fn main() -> Result<()> {
             eprintln!("{}", hook.installation_instructions());
             Ok(())
         }
+        Commands::Doctor => {
+            let db = config.database_path()?;
+            println!("database   {}", db.display());
+            match omniscient::Storage::new(&db) {
+                Ok(storage) => {
+                    let stats = storage.get_stats()?;
+                    println!("commands   {} recorded", stats.total_commands);
+                }
+                Err(e) => println!("database   UNREADABLE — {e}"),
+            }
+
+            // The most complete failure is the one that never errors: no hook
+            // installed, so nothing is captured and nothing is logged.
+            let rc_files = omniscient::ShellHook::candidate_rc_files();
+            match omniscient::ShellHook::installed_in(&rc_files) {
+                Some(f) => println!("hook       installed in {}", f.display()),
+                None => println!(
+                    "hook       NOT INSTALLED — nothing is being captured.\n\
+                     \x20          Run `omniscient init` and add the output to your shell rc file."
+                ),
+            }
+
+            // The number that answers "is this thing actually working?". The
+            // shell hook discards output, so without this a failing capture is
+            // only discoverable by noticing an absence months later.
+            let failures = omniscient::capture::recent_failures(&config, 7);
+            if failures == 0 {
+                println!("failures   none in the last 7 days");
+            } else {
+                println!(
+                    "failures   {failures} capture(s) failed in the last 7 days — see {}",
+                    config.failure_log_path()?.display()
+                );
+            }
+            Ok(())
+        }
+
         Commands::Capture {
             exit_code,
             duration,
             command,
         } => {
-            // Create capture instance
-            let capture = omniscient::CommandCapture::new(config)?;
+            // The shell must keep working, so a capture failure never changes
+            // the exit status. But it must not vanish either: the hook discards
+            // both streams, so stderr alone means nobody ever learns.
+            //
+            // Both paths can fail. Opening storage is the likelier one — a
+            // locked or unreadable database — and propagating that with `?`
+            // would have exited non-zero from inside the prompt.
+            let log_config = config.clone();
+            let note = |reason: String| {
+                omniscient::capture::log_capture_failure(&log_config, &command, &reason);
+                eprintln!("omniscient: capture error: {reason}");
+            };
 
-            // Capture the command (errors are silently ignored to not break shell)
-            if let Err(e) = capture.capture(&command, exit_code, duration) {
-                // Log error but don't fail (shell must continue working)
-                eprintln!("omniscient: capture error: {}", e);
+            match omniscient::CommandCapture::new(config) {
+                Ok(capture) => {
+                    if let Err(e) = capture.capture(&command, exit_code, duration) {
+                        note(e.to_string());
+                    }
+                }
+                Err(e) => note(format!("could not open storage: {e}")),
             }
 
             Ok(())

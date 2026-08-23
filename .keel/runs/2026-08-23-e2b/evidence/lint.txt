@@ -1,0 +1,2 @@
+$ cargo clippy --all-targets --quiet
+

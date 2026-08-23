@@ -1,0 +1,36 @@
+{
+  "schema": "keel.gate/1",
+  "gate": "G2.5",
+  "run": "2026-08-23-0ed",
+  "spec": "capture-fidelity",
+  "verdict": "blocked",
+  "generated_at": "2026-08-23T11:55:41.110475+02:00",
+  "checks": [
+    {
+      "id": "test-invalidation",
+      "verdict": "blocked",
+      "detail": "5 added line(s) mock or weaken behaviour — confirm the test still tests: tests/shell/_lib.zsh: # history options, so a Rust test would have to mock the very thing that breaks., tests/shell/_lib.zsh: # Each test sources the real hook from `omniscient init`, puts a stub, tests/shell/_lib.zsh: # A stub that records the command text the hook passed to `capture`. The, … and 2 more",
+      "evidence": "evidence/review-test-invalidation.txt"
+    },
+    {
+      "id": "test-movement",
+      "verdict": "pass",
+      "detail": "2 code file(s), 5 test file(s)"
+    },
+    {
+      "id": "conventions",
+      "verdict": "pass",
+      "detail": "7 house rule(s) in force"
+    },
+    {
+      "id": "lessons",
+      "verdict": "pass",
+      "detail": "no lessons in force yet (Phase 3 populates these)"
+    },
+    {
+      "id": "reviewer",
+      "verdict": "pass",
+      "detail": "no adversarial reviewer configured — the heuristics above are the whole pass"
+    }
+  ]
+}

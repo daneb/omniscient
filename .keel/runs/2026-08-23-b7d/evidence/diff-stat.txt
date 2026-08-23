@@ -1,0 +1,21 @@
+     2      0  .keel/runs/2026-08-23-b7d/evidence/build.txt
+     2      0  .keel/runs/2026-08-23-b7d/evidence/lint.txt
+    49      0  .keel/runs/2026-08-23-b7d/evidence/oracles.json
+    38      0  .keel/runs/2026-08-23-b7d/evidence/test.txt
+     9      0  .keel/runs/2026-08-23-b7d/run.json
+    13      0  .keel/runs/2026-08-23-b7d/trajectory.jsonl
+     3      0  .keel/specs/short-invocation/approvals.jsonl
+     4      4  .keel/specs/short-invocation/gates/G0.json
+     3      3  .keel/specs/short-invocation/gates/G1.json
+     1      2  .keel/specs/short-invocation/plan.md
+     5      4  .keel/specs/short-invocation/spec.md
+     7      0  CHANGELOG.md
+    11      0  Cargo.toml
+    10      3  install.sh
+    68      0  tests/cli.rs
+     2      0  tests/install/README.md
+    34      0  tests/install/both_names_installed.sh
+    31      0  tests/install/both_names_removed.sh
+    20     13  uninstall.sh
+
+19 file(s), +312 -29 (341 lines of churn) against aa4ef4c164adf1f237b99d12a4a13d9e4f2b191e

@@ -1,0 +1,58 @@
+#!/bin/sh
+# keel driver — Kiro CLI.
+#
+# Verified against kiro-cli 2.19.1.
+#
+# The binary is `kiro-cli`, not `kiro` — worth stating, because the desktop app
+# and the CLI are separate installs and only the CLI can be driven headlessly.
+#
+# Kiro is spec-driven by design: requirements, design, tasks. That is the lineage
+# keel's own spec/plan/tasks came from, so the overlap needs a decision rather
+# than an accident. keel has *already* produced the spec and chosen the task by
+# the time a driver runs, so this adapter asks Kiro to implement a decided task
+# and does not invoke Kiro's own spec workflow. Two spec workflows over one
+# repository would be two sources of truth, and the gates only know about one.
+#
+# ── INVOCATION ─────────────────────────────────────────────────────────────
+#   kiro-cli chat --no-interactive --trust-all-tools -w never "<prompt>"
+#
+#   chat               the agentic subcommand; the prompt is positional
+#   --no-interactive   run without expecting user input
+#   --trust-all-tools  no per-tool confirmation; keel owns the gating
+#   -w never           raw output, no terminal wrapping — this is a pipe
+#
+# Kiro works in the current directory, which keel sets to the repository (or to
+# the task's worktree under `--waves`).
+# ───────────────────────────────────────────────────────────────────────────
+#
+# Auth. keel inherits the environment, and Kiro stores credentials itself:
+#   free  (Builder ID / GitHub / Google):  kiro-cli login
+#   pro   (IAM Identity Center, enterprise):
+#         kiro-cli login --license pro \
+#                        --identity-provider <your-idc-start-url> \
+#                        --region <your-region>
+# `kiro-cli whoami` shows the current identity.
+set -u
+. "$(dirname "$0")/_common.sh"
+
+task=$(cat)
+
+keel_require python3
+keel_require kiro-cli 'https://kiro.dev — note the binary is kiro-cli, not kiro'
+
+prompt=$(keel_prompt "$task") || { keel_emit blocked "could not read the task JSON"; exit 0; }
+before=$(keel_dirty_count)
+
+if ! out=$(kiro-cli chat --no-interactive --trust-all-tools -w never "$prompt" 2>&1); then
+  case "$out" in
+    *[Ll]ogin*|*[Aa]uthenticat*|*[Cc]redential*|*[Ee]xpired*)
+      keel_emit blocked "kiro-cli is not authenticated: $(printf '%s' "$out" | tail -c 300). Run \`kiro-cli login\` (add --license pro --identity-provider <url> --region <region> for Identity Center)."
+      ;;
+    *)
+      keel_emit blocked "kiro-cli exited non-zero: $(printf '%s' "$out" | tail -c 400)"
+      ;;
+  esac
+  exit 0
+fi
+
+keel_finish "$before" "kiro-cli" "$task"

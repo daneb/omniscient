@@ -1,0 +1,4 @@
+tests/shell/duration_is_integer.zsh: cat > "$OMNI_TMP/bin/omniscient" <<STUB
+tests/shell/duration_is_integer.zsh: STUB
+tests/shell/no_subsecond_clock.sh: cat > "$tmp/bin/omniscient" <<STUB
+tests/shell/no_subsecond_clock.sh: STUB

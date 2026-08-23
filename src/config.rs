@@ -136,6 +136,18 @@ impl Config {
         self.expand_path(&self.storage.path)
     }
 
+    /// Where capture failures are recorded.
+    ///
+    /// Beside the database rather than on stderr: the shell hook runs capture as
+    /// `... &>/dev/null &!`, so anything printed is discarded. A failure that
+    /// only prints is a failure that never happened.
+    pub fn failure_log_path(&self) -> Result<PathBuf> {
+        Ok(match self.database_path()?.parent() {
+            Some(dir) => dir.join("capture-failures.log"),
+            None => PathBuf::from("capture-failures.log"),
+        })
+    }
+
     /// Ensure all required directories exist
     pub fn ensure_directories(&self) -> Result<()> {
         let omniscient_dir = Self::omniscient_dir()?;

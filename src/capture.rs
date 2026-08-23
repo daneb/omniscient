@@ -16,6 +16,79 @@ pub struct CommandCapture {
     config: Config,
 }
 
+/// Keep the failure log at or below this size, discarding oldest entries first.
+///
+/// A log that grows without bound on a machine where capture is persistently
+/// broken becomes its own problem, and the recent failures are the useful ones.
+const MAX_FAILURE_LOG_BYTES: u64 = 1024 * 1024;
+
+/// Record why a capture failed, where someone can find it later.
+///
+/// Deliberately infallible: this runs on the error path of a tool that must
+/// never break the prompt, so a failure to log a failure is swallowed. It is
+/// still better than stderr, which the shell hook discards outright.
+pub fn log_capture_failure(config: &Config, command: &str, reason: &str) {
+    let Ok(path) = config.failure_log_path() else {
+        return;
+    };
+    if let Some(dir) = path.parent() {
+        let _ = std::fs::create_dir_all(dir);
+    }
+
+    let line = format!(
+        "{}\t{}\t{}\n",
+        Utc::now().to_rfc3339(),
+        reason.replace(['\n', '\t'], " "),
+        command.replace(['\n', '\t'], " ")
+    );
+
+    use std::io::Write;
+    if let Ok(mut f) = std::fs::OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open(&path)
+    {
+        let _ = f.write_all(line.as_bytes());
+    }
+    trim_failure_log(&path);
+}
+
+/// Drop the oldest entries once the log exceeds its ceiling.
+fn trim_failure_log(path: &std::path::Path) {
+    let Ok(meta) = std::fs::metadata(path) else {
+        return;
+    };
+    if meta.len() <= MAX_FAILURE_LOG_BYTES {
+        return;
+    }
+    let Ok(contents) = std::fs::read_to_string(path) else {
+        return;
+    };
+    let lines: Vec<&str> = contents.lines().collect();
+
+    // Keep the newest half, so trimming is occasional rather than per-write.
+    let keep_from = lines.len() / 2;
+    let kept = lines[keep_from..].join("\n");
+    let _ = std::fs::write(path, format!("{kept}\n"));
+}
+
+/// Capture failures recorded within the last `days` days.
+pub fn recent_failures(config: &Config, days: i64) -> usize {
+    let Ok(path) = config.failure_log_path() else {
+        return 0;
+    };
+    let Ok(contents) = std::fs::read_to_string(&path) else {
+        return 0;
+    };
+    let cutoff = Utc::now() - chrono::Duration::days(days);
+    contents
+        .lines()
+        .filter_map(|l| l.split('\t').next())
+        .filter_map(|ts| chrono::DateTime::parse_from_rfc3339(ts).ok())
+        .filter(|t| t.with_timezone(&Utc) >= cutoff)
+        .count()
+}
+
 impl CommandCapture {
     /// Create a new command capture instance
     pub fn new(config: Config) -> Result<Self> {

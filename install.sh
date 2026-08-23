@@ -8,6 +8,11 @@ REPO="daneb/omniscient"
 VERSION="v1.0.0"
 INSTALL_DIR="${INSTALL_DIR:-$HOME/.local/bin}"
 
+# Two names, one CLI: `omniscient` is the published name and `omni` is the one
+# that actually gets typed. uninstall.sh removes the same list, so adding a name
+# here without adding it there leaves a stale binary behind.
+OMNISCIENT_BINARIES="omniscient omni"
+
 echo "🔍 Omniscient Installer"
 echo "======================="
 echo
@@ -68,10 +73,12 @@ if command -v cargo &> /dev/null; then
     # Create install directory if it doesn't exist
     mkdir -p "$INSTALL_DIR"
 
-    # Copy binary
+    # Copy binaries
     echo "→ Installing to $INSTALL_DIR..."
-    cp target/release/omniscient "$INSTALL_DIR/"
-    chmod +x "$INSTALL_DIR/omniscient"
+    for _bin in $OMNISCIENT_BINARIES; do
+        cp "target/release/$_bin" "$INSTALL_DIR/"
+        chmod +x "$INSTALL_DIR/$_bin"
+    done
 
     # Add to PATH if not already there
     if [[ ":$PATH:" != *":$INSTALL_DIR:"* ]]; then

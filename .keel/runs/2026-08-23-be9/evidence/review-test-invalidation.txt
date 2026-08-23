@@ -1,0 +1,5 @@
+tests/shell/_lib.zsh: # history options, so a Rust test would have to mock the very thing that breaks.
+tests/shell/_lib.zsh: # Each test sources the real hook from `omniscient init`, puts a stub
+tests/shell/_lib.zsh: # A stub that records the command text the hook passed to `capture`. The
+tests/shell/_lib.zsh: cat > "$OMNI_TMP/bin/omniscient" <<STUB
+tests/shell/_lib.zsh: STUB

@@ -1,0 +1,123 @@
+# keel configuration — schema keel.config/1
+# Budgets are enforced, not advised. Lower them until they hurt.
+
+schema = "keel.config/1"
+shared = []
+
+[map]
+budget_lines = 400
+codemap_budget_lines = 150
+max_file_bytes = 1048576
+codemap_min_files = 2
+exclude = []
+
+[store]
+steering_budget_lines = 150
+
+[[adapter]]
+id = "claude"
+out = "CLAUDE.md"
+budget = 180
+sections = [
+    "conventions",
+    "tech",
+    "structure",
+    "product",
+    "lessons",
+]
+enabled = true
+
+[[adapter]]
+id = "agents"
+out = "AGENTS.md"
+budget = 180
+sections = [
+    "conventions",
+    "tech",
+    "structure",
+    "product",
+    "lessons",
+]
+enabled = true
+
+[[adapter]]
+id = "kiro"
+out = ".kiro/steering/keel.md"
+budget = 200
+sections = [
+    "conventions",
+    "tech",
+    "structure",
+    "product",
+    "lessons",
+]
+enabled = true
+
+[[adapter]]
+id = "copilot"
+out = ".github/copilot-instructions.md"
+budget = 120
+sections = [
+    "conventions",
+    "tech",
+    "structure",
+    "product",
+    "lessons",
+]
+enabled = true
+
+[spec]
+max_criteria = 12
+max_lines = 250
+max_ambiguities = 0
+
+[plan]
+blast_depth = 2
+max_task_lines = 150
+max_tasks = 15
+max_reviewable_lines = 600
+
+[gate]
+
+[[driver]]
+id = "claude-code"
+cmd = ".keel/drivers/claude-code"
+default = true
+timeout_secs = 900
+
+[verify]
+build = "cargo build --quiet"
+test = "cargo test --quiet"
+lint = "cargo clippy --all-targets --quiet"
+
+[oracle]
+# `cargo test -- --exact missing_test` exits 0 with "0 passed", so a test
+# oracle naming a test that does not exist would pass vacuously. The second
+# clause requires that at least one test actually ran.
+test_cmd = "cargo test --quiet -- --exact {name} && cargo test -- --exact {name} 2>&1 | grep -qE 'test result: ok\\. [1-9][0-9]* passed'"
+doctest_cmd = "cargo test --doc --quiet"
+
+[learn]
+max_unattributable_rate = 0.5
+
+[retrieve]
+query_tokens = 2000
+slice_tokens = 6000
+max_unjustified_lines = 300
+
+[[ratchet]]
+id = "todo-markers"
+cmd = "git grep -cE 'TODO|FIXME' -- . 2>/dev/null | awk -F: '{s+=$2} END {print s+0}'"
+direction = "down"
+
+[[driver]]
+id = "copilot"
+cmd = ".keel/drivers/copilot"
+default = false
+timeout_secs = 900
+
+[[driver]]
+id = "kiro"
+cmd = ".keel/drivers/kiro"
+default = false
+timeout_secs = 900

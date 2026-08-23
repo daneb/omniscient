@@ -1,0 +1,62 @@
+{
+  "runs": [
+    {
+      "criterion": "AC-1",
+      "kind": "cmd",
+      "oracle": "`cargo run --quiet -- init --shell zsh 2>/dev/null | grep -v '^[[:space:]]*#' | grep -q 'zmodload zsh/datetime'` exits 0",
+      "outcome": "pass",
+      "exit_code": 0
+    },
+    {
+      "criterion": "AC-2",
+      "kind": "cmd",
+      "oracle": "`! cargo run --quiet -- init --shell zsh 2>/dev/null | grep -v '^[[:space:]]*#' | grep -qE 'int\\(|zsh/mathfunc'` exits 0",
+      "outcome": "pass",
+      "exit_code": 0
+    },
+    {
+      "criterion": "AC-3",
+      "kind": "cmd",
+      "oracle": "`zsh -f tests/shell/no_datetime.zsh` exits 0",
+      "outcome": "pass",
+      "exit_code": 0,
+      "output": "PASS: a shell with no clock still records commands"
+    },
+    {
+      "criterion": "AC-4",
+      "kind": "cmd",
+      "oracle": "`! cargo run --quiet -- init --shell bash 2>/dev/null | grep -v '^[[:space:]]*#' | grep -q 'date +%s%N'` exits 0",
+      "outcome": "pass",
+      "exit_code": 0
+    },
+    {
+      "criterion": "AC-5",
+      "kind": "cmd",
+      "oracle": "`bash tests/shell/no_subsecond_clock.sh` exits 0",
+      "outcome": "pass",
+      "exit_code": 0,
+      "output": "PASS: bash records commands without a sub-second clock"
+    },
+    {
+      "criterion": "AC-6",
+      "kind": "cmd",
+      "oracle": "`zsh -f tests/shell/duration_is_integer.zsh` exits 0",
+      "outcome": "pass",
+      "exit_code": 0,
+      "output": "PASS: duration is an integer (0 ms)"
+    },
+    {
+      "criterion": "AC-7",
+      "kind": "cmd",
+      "oracle": "`grep -q 'zsh/datetime' CHANGELOG.md` exits 0",
+      "outcome": "pass",
+      "exit_code": 0
+    }
+  ],
+  "criteria": 7,
+  "executed": 7,
+  "passed": 7,
+  "failed": 0,
+  "blocked": 0,
+  "human": 0
+}

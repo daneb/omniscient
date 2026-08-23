@@ -1,0 +1,30 @@
+{
+  "schema": "keel.gate/1",
+  "gate": "G3",
+  "run": "2026-08-23-239",
+  "spec": "capture-fidelity",
+  "verdict": "blocked",
+  "generated_at": "2026-08-23T11:54:25.439157+02:00",
+  "checks": [
+    {
+      "id": "earlier-gates",
+      "verdict": "blocked",
+      "detail": "G2.5 could not complete — G3 has nothing to ratify"
+    },
+    {
+      "id": "reviewable-size",
+      "verdict": "pass",
+      "detail": "230/600 reviewable lines"
+    },
+    {
+      "id": "evidence-complete",
+      "verdict": "pass",
+      "detail": "trajectory, metadata and gate results present"
+    },
+    {
+      "id": "human-verdict",
+      "verdict": "pass",
+      "detail": "approved by Dane Balia at 2026-08-23T11:54:23"
+    }
+  ]
+}

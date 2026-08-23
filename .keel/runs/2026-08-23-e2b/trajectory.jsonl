@@ -1,0 +1,23 @@
+{"t":"2026-08-23T11:53:31.984168+02:00","seq":1,"kind":"run_start","spec":"capture-fidelity","keel_version":"0.1.0","store_hash":"3b372f70c5a428a9e235325ba2a50646a64ed8d77f13762ebe9daf68e1a5abbc"}
+{"t":"2026-08-23T11:53:31.984327+02:00","seq":2,"kind":"inject","source":".keel/store/steering/conventions.md","tokens":161,"bytes":643}
+{"t":"2026-08-23T11:53:31.984396+02:00","seq":3,"kind":"inject","source":".keel/store/steering/tech.md","tokens":223,"bytes":892}
+{"t":"2026-08-23T11:53:31.984466+02:00","seq":4,"kind":"inject","source":".keel/store/steering/structure.md","tokens":2578,"bytes":10309}
+{"t":"2026-08-23T11:53:31.984672+02:00","seq":5,"kind":"inject","source":".keel/specs/capture-fidelity/spec.md","tokens":670,"bytes":2680}
+{"t":"2026-08-23T11:53:32.044482+02:00","seq":6,"kind":"command","cmd":"cargo build --quiet","exit_code":0,"evidence":"evidence/build.txt"}
+{"t":"2026-08-23T11:53:32.440281+02:00","seq":7,"kind":"command","cmd":"cargo test --quiet","exit_code":0,"evidence":"evidence/test.txt"}
+{"t":"2026-08-23T11:53:32.542027+02:00","seq":8,"kind":"command","cmd":"cargo clippy --all-targets --quiet","exit_code":0,"evidence":"evidence/lint.txt"}
+{"t":"2026-08-23T11:53:34.366076+02:00","seq":9,"kind":"oracle","criterion":"AC-1","oracle":"`! cargo run --quiet -- init --shell zsh 2>/dev/null | grep -q 'fc -ln'` exits 0","verdict":"pass","exit_code":0}
+{"t":"2026-08-23T11:53:34.366140+02:00","seq":10,"kind":"oracle","criterion":"AC-2","oracle":"`zsh -f tests/shell/share_history.zsh` exits 0","verdict":"pass","exit_code":0}
+{"t":"2026-08-23T11:53:34.366150+02:00","seq":11,"kind":"oracle","criterion":"AC-3","oracle":"`zsh -f tests/shell/ignore_space.zsh` exits 0","verdict":"pass","exit_code":0}
+{"t":"2026-08-23T11:53:34.366161+02:00","seq":12,"kind":"oracle","criterion":"AC-4","oracle":"`zsh -f tests/shell/ignore_dups.zsh` exits 0","verdict":"pass","exit_code":0}
+{"t":"2026-08-23T11:53:34.366167+02:00","seq":13,"kind":"oracle","criterion":"AC-5","oracle":"`zsh -f tests/shell/bare_prompt.zsh` exits 0","verdict":"pass","exit_code":0}
+{"t":"2026-08-23T11:53:34.366173+02:00","seq":14,"kind":"oracle","criterion":"AC-6","oracle":"`! cargo run --quiet -- init --shell bash 2>/dev/null | grep -q 'history 1'` exits 0","verdict":"pass","exit_code":0}
+{"t":"2026-08-23T11:53:34.408207+02:00","seq":15,"kind":"gate","gate":"G2","verdict":"fail","result":"gates/G2.json"}
+{"t":"2026-08-23T11:53:34.408234+02:00","seq":16,"kind":"run_end","verdict":"fail","duration_ms":2434}
+{"t":"2026-08-23T11:54:22.979230+02:00","seq":17,"kind":"human","stage":"spec","decision":"approved","by":"Dane Balia","note":"budget raised to 240, reason recorded in the spec"}
+{"t":"2026-08-23T11:54:22.994661+02:00","seq":18,"kind":"human","stage":"plan","decision":"approved","by":"Dane Balia"}
+{"t":"2026-08-23T11:54:23.013180+02:00","seq":19,"kind":"human","stage":"merge","decision":"approved","by":"Dane Balia","note":"tests demonstrated failing before the fix"}
+{"t":"2026-08-23T11:55:21.405107+02:00","seq":20,"kind":"human","stage":"spec","decision":"approved","by":"Dane Balia","note":"AC-7 added: house rule requires stating the re-init"}
+{"t":"2026-08-23T11:55:21.420340+02:00","seq":21,"kind":"human","stage":"plan","decision":"approved","by":"Dane Balia"}
+{"t":"2026-08-23T11:55:37.789115+02:00","seq":22,"kind":"human","stage":"plan","decision":"approved","by":"Dane Balia","note":"T-4 added for the changelog"}
+{"t":"2026-08-23T11:55:37.806062+02:00","seq":23,"kind":"human","stage":"merge","decision":"approved","by":"Dane Balia","note":"reviewed; the stub observes the hook rather than replacing it"}

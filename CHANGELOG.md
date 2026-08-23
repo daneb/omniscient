@@ -5,6 +5,74 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- **Commands were silently missed, especially across multiple terminals.** The
+  shell hook read the command back from shell *history* in `precmd` rather than
+  taking it from `preexec`, which is handed the command directly. History is not
+  a record of the current session:
+  - `SHARE_HISTORY` imports other sessions before each prompt, so the hook could
+    record a command typed in a **different terminal**.
+  - `HIST_IGNORE_SPACE` keeps space-prefixed commands out of history entirely,
+    so the *previous* command was recorded a second time and the real one lost.
+  - `HIST_IGNORE_DUPS` suppressed repeats, so a command run twice was timed
+    against the wrong execution.
+  - A shell that had not yet run a command had no history to read, so the first
+    command in a new terminal could be missed.
+
+  Both the zsh and bash hooks now take the command from `preexec`'s argument,
+  which no history option can affect. Covered by shell-level tests under
+  `tests/shell/` that run the generated hook with each option set.
+
+- **The hook could capture nothing at all, silently, on some shells.** It used
+  facilities it never checked for, and made capture conditional on them:
+  - zsh: `$EPOCHREALTIME` needs `zsh/datetime` and `int()` needs
+    `zsh/mathfunc`. Neither was loaded by the hook. Without them the timer was
+    empty, the guard short-circuited, and **no command was ever recorded**.
+  - bash on macOS: `date +%s%N` — BSD `date` has no `%N`, so the timestamp was
+    the literal `1787479259N`, the arithmetic failed with *value too great for
+    base*, and the capture was rejected for an unparseable duration.
+
+  Timing is now best effort and capture is not. The guard is on "a command ran",
+  never on the clock: a missing duration is a degraded record, a missing command
+  is a lost one. zsh loads `zsh/datetime` itself and no longer needs
+  `zsh/mathfunc` at all; bash uses bash 5's built-in `$EPOCHREALTIME` and falls
+  back to a duration of 0 rather than failing.
+
+### Added
+
+- **`omniscient doctor`** — answers "is this actually recording my commands?".
+  Reports the database and its command count, whether a hook is installed in
+  your shell configuration, and how many captures failed in the last 7 days.
+
+- **A capture failure log.** The shell hook runs capture as
+  `... &>/dev/null &!`, so both output streams are discarded and any failure was
+  invisible. Failures are now appended to `capture-failures.log` beside the
+  database, with a timestamp and a reason, capped at 1 MB with the oldest
+  entries dropped first.
+
+- **A short name.** `omni` is installed alongside `omniscient` and is the same
+  CLI — one binary target, two names. `omni search foo` beats
+  `omniscient search foo` several times a day, which for a tool whose value is
+  recall is the difference between reaching for it and not. The shell hook
+  deliberately still invokes `omniscient`, so an install of only the long name
+  keeps capturing.
+
+### Fixed
+
+- **A broken install could break the prompt.** `capture` propagated errors from
+  config loading and directory creation before it reached its own error
+  handling, so an unreadable home directory or an `.omniscient` path occupied by
+  something else made every prompt exit non-zero. Capture now always exits 0 and
+  records the reason in the failure log.
+
+> **Action required for existing installations.** The hook is generated at
+> install time, so an already-configured shell keeps the old one. Re-run
+> `omniscient init` and replace the omniscient block in your `~/.zshrc` (or
+> `~/.bashrc`), then start a new shell.
+
 ## [1.2.4] - 2026-02-17
 
 ### Fixed

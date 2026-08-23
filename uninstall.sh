@@ -53,7 +53,7 @@ SHELL_RC=$(detect_shell_rc)
 
 echo -e "This will uninstall Omniscient from your system.\n"
 echo "The following will be removed/modified:"
-echo "  1. Binary from ~/.cargo/bin/omniscient"
+echo "  1. Binaries (omniscient, omni) from ~/.cargo/bin and ~/.local/bin"
 echo "  2. Configuration directory at ~/.omniscient"
 echo "  3. Shell hooks from $SHELL_RC"
 echo ""
@@ -96,20 +96,27 @@ fi
 # Step 2: Remove binary
 print_info "Removing omniscient binary..."
 
-CARGO_BIN="$HOME/.cargo/bin/omniscient"
-if [ -f "$CARGO_BIN" ]; then
-    rm -f "$CARGO_BIN"
-    print_success "Removed binary from $CARGO_BIN"
-else
-    # Check if installed via cargo
-    if command -v cargo >/dev/null 2>&1; then
-        if cargo uninstall omniscient 2>/dev/null; then
-            print_success "Uninstalled omniscient via cargo"
-        else
-            print_warning "Binary not found at $CARGO_BIN"
+# The same list install.sh places. A name removed from one and not the other
+# leaves a binary that keeps working silently against data the user believes is
+# gone, which is worse than never shipping the short name at all.
+OMNISCIENT_BINARIES="omniscient omni"
+
+removed_any=false
+for _bin in $OMNISCIENT_BINARIES; do
+    for _dir in "$HOME/.cargo/bin" "${INSTALL_DIR:-$HOME/.local/bin}"; do
+        if [ -f "$_dir/$_bin" ]; then
+            rm -f "$_dir/$_bin"
+            print_success "Removed binary from $_dir/$_bin"
+            removed_any=true
         fi
+    done
+done
+
+if [ "$removed_any" = false ]; then
+    if command -v cargo >/dev/null 2>&1 && cargo uninstall omniscient 2>/dev/null; then
+        print_success "Uninstalled omniscient via cargo"
     else
-        print_warning "Binary not found at $CARGO_BIN"
+        print_warning "No omniscient binaries found"
     fi
 fi
 

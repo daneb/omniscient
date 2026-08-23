@@ -1,0 +1,65 @@
+#!/bin/sh
+# keel driver — GitHub Copilot CLI.
+#
+# Verified against GitHub Copilot CLI 1.0.80.
+#
+# This is the agentic `copilot` CLI (npm @github/copilot), which edits files —
+# NOT `gh copilot suggest`/`explain`, which only proposes shell commands. Falling
+# back to that would give a driver that always reports "changed nothing" for
+# reasons unrelated to the task, so this refuses instead.
+#
+# ── INVOCATION ─────────────────────────────────────────────────────────────
+#   copilot -p "<prompt>" --allow-all-tools --allow-all-paths \
+#           --no-ask-user --silent --no-color --no-auto-update
+#
+#   -p                  non-interactive; exits after completion
+#   --allow-all-tools   required for non-interactive mode (per `copilot --help`)
+#   --allow-all-paths   the driver runs inside a git worktree under
+#                       .keel/worktrees/, which path verification would refuse.
+#                       keel's own blast-radius check at G2 is the real boundary:
+#                       the agent may reach, and keel refuses the diff.
+#   --no-ask-user       the agent must not block waiting for a human
+#   --silent            agent response only, no stats — the CLI's own advice for
+#                       scripting with -p
+#   --no-auto-update    a driver must not change itself mid-run
+#
+# Deliberately NOT passed: --no-custom-instructions. Copilot reads AGENTS.md
+# natively, and AGENTS.md is one of keel's projections — so the store reaches
+# this agent whether or not keel injects it into the prompt.
+# ───────────────────────────────────────────────────────────────────────────
+#
+# Enterprise auth. keel inherits the environment, so export these in the shell
+# that runs keel; the CLI reads them in this order of precedence:
+#   COPILOT_GITHUB_TOKEN > GH_TOKEN > GITHUB_TOKEN
+#   GH_HOST           your GHEC-with-data-residency host, e.g. mycompany.ghe.com
+#   COPILOT_GH_HOST   overrides GH_HOST for Copilot only — needed when GH_HOST
+#                     points at a GitHub Enterprise *Server* but Copilot must
+#                     authenticate against github.com or GHEC
+# Or authenticate once interactively with `copilot` and `/login`.
+set -u
+. "$(dirname "$0")/_common.sh"
+
+task=$(cat)
+
+keel_require python3
+keel_require copilot 'npm install -g @github/copilot — note that gh copilot is a different, non-agentic tool'
+
+prompt=$(keel_prompt "$task") || { keel_emit blocked "could not read the task JSON"; exit 0; }
+before=$(keel_dirty_count)
+
+if ! out=$(copilot -p "$prompt" \
+             --allow-all-tools --allow-all-paths \
+             --no-ask-user --silent --no-color --no-auto-update 2>&1); then
+  # Auth failures land here and are environment facts, not agentic failures.
+  case "$out" in
+    *[Aa]uthenticat*|*[Ll]ogin*|*[Uu]nauthorized*|*401*)
+      keel_emit blocked "copilot is not authenticated: $(printf '%s' "$out" | tail -c 300). Set COPILOT_GITHUB_TOKEN/GH_TOKEN (and GH_HOST or COPILOT_GH_HOST for enterprise), or run \`copilot\` and /login."
+      ;;
+    *)
+      keel_emit blocked "copilot exited non-zero: $(printf '%s' "$out" | tail -c 400)"
+      ;;
+  esac
+  exit 0
+fi
+
+keel_finish "$before" "copilot" "$task"

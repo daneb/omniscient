@@ -4,13 +4,27 @@ use crate::models::{CategoryStats, CommandRecord, OrderBy, SearchQuery, Stats};
 use chrono::Utc;
 use rusqlite::{params, Connection, OptionalExtension};
 use std::path::Path;
+use std::time::Duration;
 
 /// SQLite-based storage for command history
 pub struct Storage {
     conn: Connection,
 }
 
+/// How long a writer waits for a held lock before giving up.
+///
+/// Longer than rusqlite's 5s default, and set here so the guarantee is this
+/// crate's rather than a dependency's.
+const BUSY_TIMEOUT: Duration = Duration::from_secs(10);
+
 impl Storage {
+    /// The busy timeout this connection will wait for a held write lock.
+    pub fn busy_timeout_ms(&self) -> Result<i64> {
+        Ok(self
+            .conn
+            .query_row("PRAGMA busy_timeout", [], |row| row.get(0))?)
+    }
+
     /// Create a new storage instance, initializing the database if needed
     pub fn new<P: AsRef<Path>>(db_path: P) -> Result<Self> {
         let path = db_path.as_ref();
@@ -21,6 +35,17 @@ impl Storage {
         }
 
         let conn = Connection::open(path)?;
+
+        // Wait for a held write lock rather than failing instantly.
+        //
+        // rusqlite already defaults this to 5s, so this is not fixing a bug —
+        // it states the guarantee explicitly rather than inheriting it from a
+        // library default that could change, and lengthens it. Every terminal is
+        // a separate process writing this one file and WAL permits one writer at
+        // a time, so the wait is real; a capture that waits costs nothing
+        // because it is backgrounded away from the prompt, and a capture that is
+        // dropped costs a command forever.
+        conn.busy_timeout(BUSY_TIMEOUT)?;
 
         // Enable WAL mode for better concurrency
         conn.execute_batch("PRAGMA journal_mode=WAL; PRAGMA synchronous=NORMAL;")?;

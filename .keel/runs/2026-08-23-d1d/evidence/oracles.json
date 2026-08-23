@@ -1,0 +1,56 @@
+{
+  "runs": [
+    {
+      "criterion": "AC-1",
+      "kind": "cmd",
+      "oracle": "`! cargo run --quiet -- init --shell zsh 2>/dev/null | grep -q 'fc -ln'` exits 0",
+      "outcome": "pass",
+      "exit_code": 0
+    },
+    {
+      "criterion": "AC-2",
+      "kind": "cmd",
+      "oracle": "`zsh -f tests/shell/share_history.zsh` exits 0",
+      "outcome": "pass",
+      "exit_code": 0,
+      "output": "PASS: SHARE_HISTORY does not misattribute a command"
+    },
+    {
+      "criterion": "AC-3",
+      "kind": "cmd",
+      "oracle": "`zsh -f tests/shell/ignore_space.zsh` exits 0",
+      "outcome": "pass",
+      "exit_code": 0,
+      "output": "PASS: HIST_IGNORE_SPACE does not displace a command"
+    },
+    {
+      "criterion": "AC-4",
+      "kind": "cmd",
+      "oracle": "`zsh -f tests/shell/ignore_dups.zsh` exits 0",
+      "outcome": "pass",
+      "exit_code": 0,
+      "output": "PASS: a repeated command is recorded each time"
+    },
+    {
+      "criterion": "AC-5",
+      "kind": "cmd",
+      "oracle": "`zsh -f tests/shell/bare_prompt.zsh` exits 0",
+      "outcome": "pass",
+      "exit_code": 0,
+      "output": "PASS: a bare prompt records nothing"
+    },
+    {
+      "criterion": "AC-6",
+      "kind": "cmd",
+      "oracle": "`! cargo run --quiet -- init --shell bash 2>/dev/null | grep -q 'history 1'` exits 0",
+      "outcome": "pass",
+      "exit_code": 0
+    }
+  ],
+  "criteria": 6,
+  "executed": 6,
+  "passed": 6,
+  "failed": 0,
+  "blocked": 0,
+  "human": 0
+}

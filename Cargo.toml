@@ -18,7 +18,21 @@ exclude = [
     "install.sh",
     "uninstall.sh",
     "release-tag.sh",
+    # Development harness: specs, gate verdicts, run trajectories and evidence
+    # bundles. Useful in the repository, noise in a consumer's download.
+    ".keel/",
 ]
+
+# Two names, one CLI. `omniscient` is the published name; `omni` is the one you
+# actually type, several times a day. A tool whose value is recall gets used in
+# proportion to how cheap it is to reach for.
+[[bin]]
+name = "omniscient"
+path = "src/main.rs"
+
+[[bin]]
+name = "omni"
+path = "src/main.rs"
 
 [dependencies]
 chrono = { version = "0.4", features = ["serde"] }
