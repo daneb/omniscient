@@ -178,11 +178,14 @@ precmd_functions+=(_omniscient_precmd)
     /// no hook was ever installed: nothing errors, nothing is logged, and the
     /// database simply stays empty.
     pub fn installed_in(files: &[std::path::PathBuf]) -> Option<std::path::PathBuf> {
-        files.iter().find(|f| {
-            std::fs::read_to_string(f)
-                .map(|c| c.contains("_omniscient_precmd"))
-                .unwrap_or(false)
-        }).cloned()
+        files
+            .iter()
+            .find(|f| {
+                std::fs::read_to_string(f)
+                    .map(|c| c.contains("_omniscient_precmd"))
+                    .unwrap_or(false)
+            })
+            .cloned()
     }
 
     /// The startup files a shell would load a hook from.
@@ -310,9 +313,9 @@ mod tests {
         assert!(code.contains("preexec_functions+="));
         assert!(code.contains("omniscient capture"));
         assert!(code.contains("&")); // Background execution
-        // The command text comes from preexec's argument. Reading it back from
-        // history is defeated by SHARE_HISTORY, HIST_IGNORE_SPACE and an empty
-        // history — see tests/shell/ for each case.
+                                     // The command text comes from preexec's argument. Reading it back from
+                                     // history is defeated by SHARE_HISTORY, HIST_IGNORE_SPACE and an empty
+                                     // history — see tests/shell/ for each case.
         assert!(code.contains("_OMNISCIENT_CMD=$1"));
         assert!(!code.contains("fc -ln"));
     }

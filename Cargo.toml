@@ -18,6 +18,9 @@ exclude = [
     "install.sh",
     "uninstall.sh",
     "release-tag.sh",
+    # Development harness: specs, gate verdicts, run trajectories and evidence
+    # bundles. Useful in the repository, noise in a consumer's download.
+    ".keel/",
 ]
 
 # Two names, one CLI. `omniscient` is the published name; `omni` is the one you

@@ -43,7 +43,11 @@ pub fn log_capture_failure(config: &Config, command: &str, reason: &str) {
     );
 
     use std::io::Write;
-    if let Ok(mut f) = std::fs::OpenOptions::new().create(true).append(true).open(&path) {
+    if let Ok(mut f) = std::fs::OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open(&path)
+    {
         let _ = f.write_all(line.as_bytes());
     }
     trim_failure_log(&path);
@@ -51,11 +55,15 @@ pub fn log_capture_failure(config: &Config, command: &str, reason: &str) {
 
 /// Drop the oldest entries once the log exceeds its ceiling.
 fn trim_failure_log(path: &std::path::Path) {
-    let Ok(meta) = std::fs::metadata(path) else { return };
+    let Ok(meta) = std::fs::metadata(path) else {
+        return;
+    };
     if meta.len() <= MAX_FAILURE_LOG_BYTES {
         return;
     }
-    let Ok(contents) = std::fs::read_to_string(path) else { return };
+    let Ok(contents) = std::fs::read_to_string(path) else {
+        return;
+    };
     let lines: Vec<&str> = contents.lines().collect();
 
     // Keep the newest half, so trimming is occasional rather than per-write.

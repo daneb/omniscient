@@ -65,7 +65,11 @@ fn failure_log_is_bounded() {
 
     // Comfortably past the 1 MB ceiling.
     for i in 0..20_000 {
-        log_capture_failure(&config, &format!("command number {i} with some padding"), "boom");
+        log_capture_failure(
+            &config,
+            &format!("command number {i} with some padding"),
+            "boom",
+        );
     }
 
     let size = std::fs::metadata(&log).expect("log").len();
@@ -97,6 +101,10 @@ fn recent_failures_counts_only_the_window() {
     )
     .unwrap();
 
-    assert_eq!(recent_failures(&config, 7), 2, "the window is not being applied");
+    assert_eq!(
+        recent_failures(&config, 7),
+        2,
+        "the window is not being applied"
+    );
     assert_eq!(recent_failures(&config, 365), 3);
 }

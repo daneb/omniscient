@@ -106,7 +106,12 @@ fn doctor_recognises_an_installed_hook() {
 fn omni_and_omniscient_are_equivalent() {
     let home = sandbox("equivalent");
 
-    for args in [vec!["--help"], vec!["doctor"], vec!["stats"], vec!["--version"]] {
+    for args in [
+        vec!["--help"],
+        vec!["doctor"],
+        vec!["stats"],
+        vec!["--version"],
+    ] {
         let run = |exe: &PathBuf| {
             let out = Command::new(exe)
                 .args(&args)
