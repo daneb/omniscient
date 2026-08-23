@@ -1,0 +1,20 @@
+     2      0  .keel/runs/2026-08-23-73f/evidence/build.txt
+     2      0  .keel/runs/2026-08-23-73f/evidence/lint.txt
+    62      0  .keel/runs/2026-08-23-73f/evidence/oracles.json
+    18      0  .keel/runs/2026-08-23-73f/evidence/test.txt
+     9      0  .keel/runs/2026-08-23-73f/run.json
+    15      0  .keel/runs/2026-08-23-73f/trajectory.jsonl
+     5      0  .keel/specs/hook-portability/approvals.jsonl
+    90      0  .keel/specs/hook-portability/gates/G0.json
+    95      0  .keel/specs/hook-portability/gates/G1.json
+    52      0  .keel/specs/hook-portability/plan.md
+   100      0  .keel/specs/hook-portability/spec.md
+    27      0  .keel/specs/hook-portability/tasks.md
+    15      0  CHANGELOG.md
+    71     22  src/shell.rs
+     8      6  tests/shell/_lib.zsh
+    28      0  tests/shell/duration_is_integer.zsh
+    26      0  tests/shell/no_datetime.zsh
+    49      0  tests/shell/no_subsecond_clock.sh
+
+18 file(s), +674 -28 (702 lines of churn) against 21db695f5548b212ed36510d719ed118081f3244

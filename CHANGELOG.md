@@ -26,6 +26,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   which no history option can affect. Covered by shell-level tests under
   `tests/shell/` that run the generated hook with each option set.
 
+- **The hook could capture nothing at all, silently, on some shells.** It used
+  facilities it never checked for, and made capture conditional on them:
+  - zsh: `$EPOCHREALTIME` needs `zsh/datetime` and `int()` needs
+    `zsh/mathfunc`. Neither was loaded by the hook. Without them the timer was
+    empty, the guard short-circuited, and **no command was ever recorded**.
+  - bash on macOS: `date +%s%N` — BSD `date` has no `%N`, so the timestamp was
+    the literal `1787479259N`, the arithmetic failed with *value too great for
+    base*, and the capture was rejected for an unparseable duration.
+
+  Timing is now best effort and capture is not. The guard is on "a command ran",
+  never on the clock: a missing duration is a degraded record, a missing command
+  is a lost one. zsh loads `zsh/datetime` itself and no longer needs
+  `zsh/mathfunc` at all; bash uses bash 5's built-in `$EPOCHREALTIME` and falls
+  back to a duration of 0 rather than failing.
+
 > **Action required for existing installations.** The hook is generated at
 > install time, so an already-configured shell keeps the old one. Re-run
 > `omniscient init` and replace the omniscient block in your `~/.zshrc` (or

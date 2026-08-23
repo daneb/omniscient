@@ -19,12 +19,14 @@ _omni_repo_root() {
 }
 
 omni_setup() {
-    # The generated hook depends on two zsh modules it never loads itself:
-    # zsh/datetime for $EPOCHREALTIME and zsh/mathfunc for int(). An interactive
-    # shell usually has both via a framework; `zsh -f` has neither. Load them so
-    # these tests exercise the hook as a real shell meets it.
-    zmodload zsh/datetime 2>/dev/null
-    zmodload zsh/mathfunc 2>/dev/null
+    # Most tests want the environment a real interactive shell provides, where a
+    # framework has usually loaded these. Set OMNI_BARE_SHELL=1 to get the
+    # environment `zsh -f` actually gives you — which is what the hook has to
+    # survive on its own.
+    if [[ -z ${OMNI_BARE_SHELL:-} ]]; then
+        zmodload zsh/datetime 2>/dev/null
+        zmodload zsh/mathfunc 2>/dev/null
+    fi
 
     OMNI_ROOT=$(_omni_repo_root)
     OMNI_TMP=$(mktemp -d)
