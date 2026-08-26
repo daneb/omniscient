@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- **End-to-end CLI coverage.** `tests/cli_commands.rs` exercises `search`,
+  `here`, `recent`, `top`, `category`, `stats`, `export`, `import`, and
+  `config` against a real captured history (no mocked storage), taking
+  `main.rs` from 45/315 lines covered to 276/315 and overall coverage from
+  ~63% to ~88%.
+
+### Fixed
+
+- **README claims had drifted from the code.** "Recommended for v1.0.0",
+  the "Version 1.0 (Current)" roadmap section (which listed Bash as a future
+  feature it already shipped), the bottom "Project Status" block, and the
+  91-test count were all stale relative to 1.3.1. Updated to the current
+  version and test count (119).
+
 ## [1.3.1] - 2026-08-26
 
 ### Fixed

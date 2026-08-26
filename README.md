@@ -37,7 +37,7 @@ Valid question. Here's our answer:
 
 - ✅ **100% Open Source**: Every line of code is public and auditable
 - ✅ **No Network Calls**: The binary contains **zero** networking code (no HTTP clients, no telemetry, no sockets) — your data never leaves your machine
-- ✅ **91 Automated Tests**: Comprehensive test coverage validates all functionality
+- ✅ **119 Automated Tests**: Comprehensive test coverage validates all functionality
 - ✅ **Zero Clippy Warnings**: Strict linting enforced on every commit
 - ✅ **Security Audits**: Automated `cargo-audit` checks on every push
 - ✅ **CI/CD Pipeline**: All commits tested on Ubuntu & macOS before merge
@@ -60,7 +60,7 @@ This project is built with AI assistance (Claude). Here's how we ensure quality:
 
 1. **Human Review**: Every AI-generated line is reviewed and validated
 2. **Architecture Decisions**: Humans make all design decisions (documented in [ADRs](docs/adr/))
-3. **Test Coverage**: 91 tests written to validate AI-generated code
+3. **Test Coverage**: 119 tests written to validate AI-generated code
 4. **Incremental Development**: Full git history shows human-guided, step-by-step progress
 
 ### Verify Yourself
@@ -71,7 +71,7 @@ git clone https://github.com/daneb/omniscient
 cd omniscient
 
 # Run all tests
-cargo test --verbose  # 91/91 passing
+cargo test --verbose  # 119/119 passing
 
 # Security audit
 cargo install cargo-audit
@@ -92,7 +92,7 @@ See [SECURITY.md](SECURITY.md) for our security policy and [CONTRIBUTING.md](CON
 
 ### Installation
 
-#### From Source (Recommended for v1.0.0)
+#### From Source
 
 ```bash
 # Clone the repository
@@ -306,15 +306,17 @@ max_history_size = 100000
 
 ## Roadmap
 
-### Version 1.0 (Current)
-- ✅ Zsh integration
+### Current (v1.3)
+- ✅ Zsh and Bash integration
 - ✅ SQLite storage
 - ✅ Command categorization
 - ✅ Search and retrieval
 - ✅ Export/import
+- ✅ `omniscient doctor` and a capture failure log
+- ✅ Short `omni` alias
 
 ### Future Versions
-- Bash, Fish, PowerShell support
+- Fish, PowerShell support
 - Multi-line command handling
 - Command execution with safety checks
 - Web UI for history browsing
@@ -422,8 +424,8 @@ Inspired by the need to never lose a useful command again.
 
 ## Project Status
 
-**Version**: 1.0.0
+**Version**: 1.3.1
 **Status**: ✅ Production Ready
 **Maintained**: Yes
-**Automated Tests**: 91 passing
+**Automated Tests**: 119 passing
 **Code Quality**: Zero warnings, all clippy lints passed
