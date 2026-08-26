@@ -5,23 +5,36 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.3.2] - 2026-08-26
 
 ### Added
 
 - **End-to-end CLI coverage.** `tests/cli_commands.rs` exercises `search`,
   `here`, `recent`, `top`, `category`, `stats`, `export`, `import`, and
-  `config` against a real captured history (no mocked storage), taking
-  `main.rs` from 45/315 lines covered to 276/315 and overall coverage from
-  ~63% to ~88%.
+  `config` against a real captured history (no mocked storage).
 
 ### Fixed
+
+- **The coverage badge was measuring the wrong thing.** CI's `cargo
+  tarpaulin` runs on Linux, where its default `ptrace` engine only
+  instruments the process it launches directly — not the `omniscient`/`omni`
+  binaries our CLI tests spawn as subprocesses. That left `main.rs` reported
+  at 0/231 lines regardless of how well it was actually tested, and pinned
+  the codecov badge at 49%. Added `--follow-exec` so tarpaulin tracks
+  coverage across that process boundary; local (macOS) runs already used a
+  different engine that doesn't have this blind spot, which is why the gap
+  wasn't visible there. Real coverage, once measured correctly, is ~88%.
 
 - **README claims had drifted from the code.** "Recommended for v1.0.0",
   the "Version 1.0 (Current)" roadmap section (which listed Bash as a future
   feature it already shipped), the bottom "Project Status" block, and the
   91-test count were all stale relative to 1.3.1. Updated to the current
   version and test count (119).
+
+- **A version bump skipped a digit.** The commit after 1.3.1 landed as
+  0.3.2 instead of 1.3.2, which also published that version number to
+  crates.io. Corrected here; see the release notes for what to do about the
+  stray publish.
 
 ## [1.3.1] - 2026-08-26
 

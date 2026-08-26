@@ -424,7 +424,7 @@ Inspired by the need to never lose a useful command again.
 
 ## Project Status
 
-**Version**: 1.3.1
+**Version**: 1.3.2
 **Status**: ✅ Production Ready
 **Maintained**: Yes
 **Automated Tests**: 119 passing
