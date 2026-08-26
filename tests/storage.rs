@@ -88,7 +88,7 @@ fn sixteen_concurrent_writers_all_persist() {
     let storage = Storage::new(&db).expect("storage");
     let stats = storage.get_stats().expect("stats");
     assert_eq!(
-        stats.total_commands as usize, WRITERS,
+        stats.total_commands, WRITERS,
         "expected {WRITERS} commands on disk, found {}",
         stats.total_commands
     );

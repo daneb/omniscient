@@ -10,6 +10,8 @@
 
 **Omniscient** is a cross-platform command history tracker that captures every command you run, categorizes them intelligently, and makes them instantly searchable. Survive machine migrations, access your command library anywhere, and boost your CLI productivity.
 
+Two names, one CLI: `cargo install omniscient` installs both `omniscient` and the short alias `omni`. Setup still uses `omniscient init` (the shell hook always calls the long name), but day-to-day usage below uses `omni` — the one you'll actually type several times a day.
+
 **Built with AI assistance. Verified by humans. Trusted through transparency.**
 
 📚 **[Complete Documentation](DOCUMENTATION.md)** | 📖 **[Full Index](docs/INDEX.md)** | 🤝 **[Contributing](CONTRIBUTING.md)** | 🔒 **[Security](SECURITY.md)**
@@ -160,19 +162,19 @@ That's it! Omniscient is now tracking your commands.
 
 ```bash
 # Search your command history
-omniscient search "git commit"
+omni search "git commit"
 
 # Show recent commands
-omniscient recent 20
+omni recent 20
 
 # Most frequently used commands
-omniscient top 10
+omni top 10
 
 # Filter by category
-omniscient category git
+omni category git
 
 # View statistics
-omniscient stats
+omni stats
 ```
 
 ### Search Tips
@@ -181,25 +183,25 @@ Omniscient's search handles special characters seamlessly:
 
 ```bash
 # Search for IP addresses
-omniscient search "10.104.113.39"
+omni search "10.104.113.39"
 
 # Search for URLs
-omniscient search "https://api.github.com"
-omniscient search "api.github.com"
+omni search "https://api.github.com"
+omni search "api.github.com"
 
 # Search for file paths with dots
-omniscient search "./config/settings.yaml"
-omniscient search "../parent/file.txt"
+omni search "./config/settings.yaml"
+omni search "../parent/file.txt"
 
 # Search for email addresses
-omniscient search "user@domain.com"
+omni search "user@domain.com"
 
 # Search for version numbers
-omniscient search "v1.2.3"
+omni search "v1.2.3"
 
 # Search works with or without quotes
-omniscient search 192.168.1.1
-omniscient search "192.168.1.1"
+omni search 192.168.1.1
+omni search "192.168.1.1"
 ```
 
 **Note**: All searches use exact phrase matching, so searching for `git commit` will find commands containing that exact phrase, not commands with "git" OR "commit" separately.
@@ -208,13 +210,13 @@ omniscient search "192.168.1.1"
 
 ```bash
 # Export your history
-omniscient export history.json
+omni export history.json
 
 # Import on a new machine
-omniscient import history.json
+omni import history.json
 
 # Sync via Git (recommended workflow)
-omniscient export ~/.omniscient-backup/history.json
+omni export ~/.omniscient-backup/history.json
 cd ~/.omniscient-backup
 git add history.json
 git commit -m "Update command history"
@@ -244,14 +246,14 @@ Zero impact on your workflow, all happens in the background.
 ## Example Output
 
 ```
-$ omniscient search "docker"
+$ omni search "docker"
 
 [2025-11-10 14:32:45] [✓] docker ps -a                          (git/123)
 [2025-11-10 12:15:30] [✗] docker build -t myapp .               (docker/45)
 [2025-11-09 16:45:12] [✓] docker-compose up -d                  (docker/89)
 [2025-11-09 10:22:01] [✓] docker logs -f container_name         (docker/12)
 
-$ omniscient top 5
+$ omni top 5
 
 1. git status                    (1,234 uses)
 2. ls -la                        (892 uses)
