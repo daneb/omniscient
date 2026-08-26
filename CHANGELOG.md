@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.1] - 2026-08-26
+
+### Fixed
+
+- **CI was red on `master`.** `tests/storage.rs` cast `stats.total_commands`
+  (already a `usize`) to `usize`, which clippy's `unnecessary_cast` lint
+  rejects under `-D warnings`. Removed the redundant cast.
+
+- **README usage examples still said `omniscient`.** The 1.3.0 short name
+  (`omni`) never made it into the day-to-day command examples. Search,
+  recent, top, category, stats, export/import, and the sample output now use
+  `omni`; install, `init`, and hook setup stay on `omniscient`, since the
+  shell hook always invokes the long name.
+
 ## [1.3.0] - 2026-08-23
 
 ### Added
