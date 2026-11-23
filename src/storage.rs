@@ -404,13 +404,23 @@ impl Storage {
         self.search(&query)
     }
 
-    /// Get the most frequently used commands
+    /// Get the most frequently used commands.
+    ///
+    /// Without a directory filter, rows are merged by command text so a
+    /// command run in several working directories is counted once rather
+    /// than once per directory (GH issue #1). `usage_count` is the sum
+    /// across directories, `last_used` the most recent, and the duration a
+    /// weighted average. With a directory filter, behaviour is unchanged.
     pub fn get_top(
         &self,
         limit: usize,
         working_dir: Option<String>,
         recursive: bool,
     ) -> Result<Vec<CommandRecord>> {
+        if working_dir.is_none() {
+            return self.get_top_aggregated(limit);
+        }
+
         let query = SearchQuery {
             text: None,
             category: None,
@@ -422,6 +432,48 @@ impl Storage {
         };
 
         self.search(&query)
+    }
+
+    /// Get the most frequently used commands, merged across all directories.
+    ///
+    /// Relies on SQLite's documented "bare columns in an aggregate query"
+    /// behaviour: with exactly one `MAX()` aggregate in the query, bare
+    /// columns (`category`, `exit_code`, `timestamp`, `working_dir`) take
+    /// their value from the same row that produced that `MAX(last_used)`,
+    /// per group.
+    fn get_top_aggregated(&self, limit: usize) -> Result<Vec<CommandRecord>> {
+        let mut stmt = self.conn.prepare(
+            "SELECT command,
+                    SUM(usage_count) AS total_usage,
+                    MAX(last_used) AS merged_last_used,
+                    CAST(SUM(duration_ms * usage_count) AS REAL) / SUM(usage_count) AS avg_duration_ms,
+                    category,
+                    exit_code,
+                    timestamp,
+                    working_dir
+             FROM commands
+             GROUP BY command
+             ORDER BY total_usage DESC
+             LIMIT ?1",
+        )?;
+
+        let records = stmt
+            .query_map(params![limit], |row| {
+                Ok(CommandRecord {
+                    id: None,
+                    command: row.get(0)?,
+                    timestamp: row.get::<_, String>(6)?.parse().unwrap(),
+                    exit_code: row.get(5)?,
+                    duration_ms: row.get::<_, f64>(3)?.round() as i64,
+                    working_dir: row.get(7)?,
+                    category: row.get(4)?,
+                    usage_count: row.get(1)?,
+                    last_used: row.get::<_, String>(2)?.parse().unwrap(),
+                })
+            })?
+            .collect::<std::result::Result<Vec<_>, _>>()?;
+
+        Ok(records)
     }
 
     /// Get all commands in a specific category
@@ -625,6 +677,87 @@ mod tests {
 
         let git_commands = storage.get_by_category("git", 10, None, false).unwrap();
         assert_eq!(git_commands.len(), 2);
+    }
+
+    #[test]
+    fn test_get_top_merges_same_command_across_directories() {
+        let storage = create_test_storage();
+
+        // "gst" run from two different directories, with different usage
+        // counts and durations in each.
+        let gst_a = CommandRecord::new(
+            "gst".to_string(),
+            Utc::now(),
+            0,
+            30,
+            "/tmp/a".to_string(),
+            "other".to_string(),
+        );
+        let id_a = storage.insert(&gst_a).unwrap();
+        for _ in 0..4 {
+            storage.increment_usage(id_a).unwrap(); // usage_count: 1 -> 5
+        }
+
+        let gst_b = CommandRecord::new(
+            "gst".to_string(),
+            Utc::now(),
+            0,
+            40,
+            "/tmp/b".to_string(),
+            "other".to_string(),
+        );
+        let id_b = storage.insert(&gst_b).unwrap();
+        for _ in 0..2 {
+            storage.increment_usage(id_b).unwrap(); // usage_count: 1 -> 3
+        }
+
+        // A command that only ever ran in one directory, for comparison.
+        storage
+            .insert(&create_test_command("ls", "file", 0))
+            .unwrap();
+
+        let top = storage.get_top(10, None, false).unwrap();
+
+        let gst_rows: Vec<_> = top.iter().filter(|c| c.command == "gst").collect();
+        assert_eq!(gst_rows.len(), 1, "gst should appear once, not per-directory");
+        assert_eq!(gst_rows[0].usage_count, 8); // 5 + 3
+        // Weighted average: (30*5 + 40*3) / 8 = 33.75, rounds to 34.
+        assert_eq!(gst_rows[0].duration_ms, 34);
+
+        assert_eq!(top.len(), 2, "ls and gst, each exactly once");
+    }
+
+    #[test]
+    fn test_get_top_with_dir_filter_stays_per_directory() {
+        let storage = create_test_storage();
+
+        let gst_a = CommandRecord::new(
+            "gst".to_string(),
+            Utc::now(),
+            0,
+            30,
+            "/tmp/a".to_string(),
+            "other".to_string(),
+        );
+        storage.insert(&gst_a).unwrap();
+
+        let gst_b = CommandRecord::new(
+            "gst".to_string(),
+            Utc::now(),
+            0,
+            40,
+            "/tmp/b".to_string(),
+            "other".to_string(),
+        );
+        storage.insert(&gst_b).unwrap();
+
+        let scoped = storage
+            .get_top(10, Some("/tmp/a".to_string()), false)
+            .unwrap();
+
+        assert_eq!(scoped.len(), 1);
+        assert_eq!(scoped[0].working_dir, "/tmp/a");
+        assert_eq!(scoped[0].usage_count, 1);
     }
 
     #[test]
