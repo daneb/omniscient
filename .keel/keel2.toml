@@ -1,0 +1,2 @@
+test_command = "cargo test"
+allowed_commands = ["git", "cargo"]
