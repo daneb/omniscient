@@ -495,14 +495,16 @@ impl Storage {
         // Total commands
         let total_commands: usize =
             self.conn
-                .query_row("SELECT COUNT(*) FROM commands", [], |row| row.get(0))?;
+                .query_row("SELECT COUNT(*) FROM commands", [], |row| {
+                    row.get::<_, i64>(0)
+                })? as usize;
 
         // Successful commands
         let successful_commands: usize = self.conn.query_row(
             "SELECT COUNT(*) FROM commands WHERE exit_code = 0",
             [],
-            |row| row.get(0),
-        )?;
+            |row| row.get::<_, i64>(0),
+        )? as usize;
 
         // Failed commands
         let failed_commands = total_commands - successful_commands;
@@ -517,7 +519,7 @@ impl Storage {
             .query_map([], |row| {
                 Ok(CategoryStats {
                     category: row.get(0)?,
-                    count: row.get(1)?,
+                    count: row.get::<_, i64>(1)? as usize,
                 })
             })?
             .collect::<std::result::Result<Vec<_>, _>>()?;
@@ -582,10 +584,10 @@ impl Storage {
 
     /// Get total number of commands
     pub fn count(&self) -> Result<usize> {
-        let count: usize = self
+        let count: i64 = self
             .conn
             .query_row("SELECT COUNT(*) FROM commands", [], |row| row.get(0))?;
-        Ok(count)
+        Ok(count as usize)
     }
 }
 
