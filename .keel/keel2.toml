@@ -1,2 +1,4 @@
-test_command = "cargo test"
+# keel2 gate: the fast checks from .github/workflows/ci.yml, so failures are
+# caught (and fed back to the builder) before a PR is opened.
+test_command = "cargo fmt --all -- --check && cargo clippy --all-targets --all-features -- -D warnings && cargo test --all-features"
 allowed_commands = ["git", "cargo"]
