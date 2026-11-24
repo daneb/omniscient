@@ -178,6 +178,27 @@ impl Storage {
         Ok(())
     }
 
+    /// Set the usage count of an existing command to an exact value
+    ///
+    /// Also updates `last_used` to now. Errors if no row has the given id.
+    pub fn set_usage_count(&self, id: i64, count: i32) -> Result<()> {
+        let now = Utc::now().to_rfc3339();
+
+        let changed = self.conn.execute(
+            "UPDATE commands SET usage_count = ?1, last_used = ?2 WHERE id = ?3",
+            params![count, now, id],
+        )?;
+
+        if changed == 0 {
+            return Err(crate::error::OmniscientError::other(format!(
+                "No command with id {}",
+                id
+            )));
+        }
+
+        Ok(())
+    }
+
     /// Sanitizes a query string for FTS5 search by wrapping it in quotes
     /// This treats the query as a literal phrase, preventing FTS5 syntax errors
     /// for special characters like dots, asterisks, etc.
@@ -654,6 +675,25 @@ mod tests {
 
         let records = storage.get_all().unwrap();
         assert_eq!(records[0].usage_count, 2);
+    }
+
+    #[test]
+    fn test_set_usage_count() {
+        let storage = create_test_storage();
+        let id = storage
+            .insert(&create_test_command("ls", "file", 0))
+            .unwrap();
+
+        storage.set_usage_count(id, 42).unwrap();
+
+        let records = storage.get_all().unwrap();
+        assert_eq!(records[0].usage_count, 42);
+    }
+
+    #[test]
+    fn test_set_usage_count_unknown_id() {
+        let storage = create_test_storage();
+        assert!(storage.set_usage_count(999, 5).is_err());
     }
 
     #[test]
