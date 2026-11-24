@@ -405,12 +405,22 @@ impl Storage {
     }
 
     /// Get the most frequently used commands
+    ///
+    /// Without a directory filter, the same command run in several working
+    /// directories is one logical command: usage counts are summed, duration
+    /// is averaged weighted by usage, and the most recent `last_used` wins.
+    /// With a directory filter, rows are scoped to that directory as before
+    /// and are not grouped across directories.
     pub fn get_top(
         &self,
         limit: usize,
         working_dir: Option<String>,
         recursive: bool,
     ) -> Result<Vec<CommandRecord>> {
+        if working_dir.is_none() {
+            return self.get_top_grouped(limit);
+        }
+
         let query = SearchQuery {
             text: None,
             category: None,
@@ -422,6 +432,41 @@ impl Storage {
         };
 
         self.search(&query)
+    }
+
+    /// Get the most frequently used commands, grouped by command text across
+    /// all working directories.
+    fn get_top_grouped(&self, limit: usize) -> Result<Vec<CommandRecord>> {
+        let mut stmt = self.conn.prepare(
+            "SELECT command,
+                    MAX(category) AS category,
+                    SUM(usage_count) AS total_usage,
+                    MAX(last_used) AS last_used,
+                    CAST(ROUND(SUM(duration_ms * usage_count) * 1.0 / SUM(usage_count)) AS INTEGER) AS avg_duration_ms
+             FROM commands
+             GROUP BY command
+             ORDER BY total_usage DESC, last_used DESC
+             LIMIT ?1",
+        )?;
+
+        let records = stmt
+            .query_map(params![limit as i64], |row| {
+                let last_used: String = row.get(3)?;
+                Ok(CommandRecord {
+                    id: None,
+                    command: row.get(0)?,
+                    timestamp: last_used.parse().unwrap(),
+                    exit_code: 0,
+                    duration_ms: row.get(4)?,
+                    working_dir: String::new(),
+                    category: row.get(1)?,
+                    usage_count: row.get(2)?,
+                    last_used: last_used.parse().unwrap(),
+                })
+            })?
+            .collect::<std::result::Result<Vec<_>, _>>()?;
+
+        Ok(records)
     }
 
     /// Get all commands in a specific category
@@ -764,6 +809,62 @@ mod tests {
 
         let results = storage.search(&query).unwrap();
         assert_eq!(results.len(), 1);
+    }
+
+    #[test]
+    fn test_get_top_groups_same_command_across_directories() {
+        let storage = create_test_storage();
+
+        let mut cmd_a = create_test_command("gst", "other", 0);
+        cmd_a.working_dir = "/tmp/a".to_string();
+        cmd_a.duration_ms = 100;
+        let id_a = storage.insert(&cmd_a).unwrap();
+        for _ in 0..4 {
+            storage.increment_usage(id_a).unwrap();
+        }
+        // usage_count is now 5 in /tmp/a
+
+        let mut cmd_b = create_test_command("gst", "other", 0);
+        cmd_b.working_dir = "/tmp/b".to_string();
+        cmd_b.duration_ms = 300;
+        let id_b = storage.insert(&cmd_b).unwrap();
+        for _ in 0..2 {
+            storage.increment_usage(id_b).unwrap();
+        }
+        // usage_count is now 3 in /tmp/b
+
+        storage
+            .insert(&create_test_command("ls", "file", 0))
+            .unwrap();
+
+        let top = storage.get_top(10, None, false).unwrap();
+
+        assert_eq!(top.iter().filter(|c| c.command == "gst").count(), 1);
+
+        let gst = top.iter().find(|c| c.command == "gst").unwrap();
+        assert_eq!(gst.usage_count, 8);
+        // Weighted by usage: (100 * 5 + 300 * 3) / 8 = 175
+        assert_eq!(gst.duration_ms, 175);
+    }
+
+    #[test]
+    fn test_get_top_with_dir_filter_is_not_grouped() {
+        let storage = create_test_storage();
+
+        let mut cmd_a = create_test_command("gst", "other", 0);
+        cmd_a.working_dir = "/tmp/a".to_string();
+        storage.insert(&cmd_a).unwrap();
+
+        let mut cmd_b = create_test_command("gst", "other", 0);
+        cmd_b.working_dir = "/tmp/b".to_string();
+        storage.insert(&cmd_b).unwrap();
+
+        let top = storage
+            .get_top(10, Some("/tmp/a".to_string()), false)
+            .unwrap();
+
+        assert_eq!(top.len(), 1);
+        assert_eq!(top[0].working_dir, "/tmp/a");
     }
 
     #[test]
