@@ -157,12 +157,8 @@ impl Importer {
     }
 
     /// Update usage count for an existing command
-    fn update_usage_count(&self, id: i64, _new_count: i32) -> Result<()> {
-        // For now, we'll just increment once to update last_used timestamp
-        // The usage count merging is a best-effort approach
-        // TODO: Add a set_usage_count method to Storage for more accurate updates
-        self.storage.increment_usage(id)?;
-        Ok(())
+    fn update_usage_count(&self, id: i64, new_count: i32) -> Result<()> {
+        self.storage.set_usage_count(id, new_count)
     }
 }
 
@@ -330,6 +326,116 @@ mod tests {
         assert_eq!(stats.imported, 0);
         assert_eq!(stats.skipped, 0);
         assert_eq!(stats.updated, 1); // Higher count preserved
+    }
+
+    /// Build a target storage file with "git status" at `existing` usage and an
+    /// export file containing "git status" at `imported` usage.
+    fn setup_duplicate(existing: i32, imported: i32) -> (NamedTempFile, NamedTempFile) {
+        let db_file = NamedTempFile::new().unwrap();
+        let storage = Storage::new(db_file.path()).unwrap();
+        storage
+            .insert(&create_test_command("git status", "git", existing))
+            .unwrap();
+
+        let source = create_test_storage();
+        source
+            .insert(&create_test_command("git status", "git", imported))
+            .unwrap();
+        let export_file = NamedTempFile::new().unwrap();
+        Exporter::new(source).export(export_file.path()).unwrap();
+
+        (db_file, export_file)
+    }
+
+    /// Import with a strategy and return the stats plus the stored usage count.
+    fn import_and_count(
+        existing: i32,
+        imported: i32,
+        strategy: ImportStrategy,
+    ) -> (ImportStats, i32) {
+        let (db_file, export_file) = setup_duplicate(existing, imported);
+        let importer = Importer::new(Storage::new(db_file.path()).unwrap(), strategy);
+        let stats = importer.import(export_file.path()).unwrap();
+        let count = Storage::new(db_file.path()).unwrap().get_all().unwrap()[0].usage_count;
+        (stats, count)
+    }
+
+    #[test]
+    fn test_import_update_usage_adds_counts() {
+        let (stats, count) = import_and_count(3, 5, ImportStrategy::UpdateUsage);
+        assert_eq!(count, 8);
+        assert_eq!(stats.updated, 1);
+    }
+
+    #[test]
+    fn test_import_preserve_higher_uses_imported_count() {
+        let (stats, count) = import_and_count(5, 10, ImportStrategy::PreserveHigher);
+        assert_eq!(count, 10);
+        assert_eq!(stats.updated, 1);
+    }
+
+    #[test]
+    fn test_import_preserve_higher_keeps_existing_when_lower_or_equal() {
+        for imported in [2, 5] {
+            let (stats, count) = import_and_count(5, imported, ImportStrategy::PreserveHigher);
+            assert_eq!(count, 5);
+            assert_eq!(stats.skipped, 1);
+            assert_eq!(stats.updated, 0);
+        }
+    }
+
+    #[test]
+    fn test_import_skip_leaves_count_unchanged() {
+        let (stats, count) = import_and_count(5, 10, ImportStrategy::Skip);
+        assert_eq!(count, 5);
+        assert_eq!(stats.skipped, 1);
+    }
+
+    fn assert_import_fails_without_inserting(path: &Path) {
+        let db_file = NamedTempFile::new().unwrap();
+        let importer = Importer::new(Storage::new(db_file.path()).unwrap(), ImportStrategy::Skip);
+        assert!(importer.import(path).is_err());
+        assert_eq!(Storage::new(db_file.path()).unwrap().count().unwrap(), 0);
+    }
+
+    #[test]
+    fn test_import_missing_file() {
+        let dir = tempfile::tempdir().unwrap();
+        assert_import_fails_without_inserting(&dir.path().join("missing.json"));
+    }
+
+    #[test]
+    fn test_import_malformed_json() {
+        let file = NamedTempFile::new().unwrap();
+        fs::write(file.path(), "{ not json").unwrap();
+        assert_import_fails_without_inserting(file.path());
+    }
+
+    #[test]
+    fn test_import_empty_version() {
+        let file = NamedTempFile::new().unwrap();
+        let data = ExportData {
+            version: String::new(),
+            exported_at: Utc::now().to_rfc3339(),
+            command_count: 1,
+            commands: vec![create_test_command("git status", "git", 1)],
+        };
+        fs::write(file.path(), serde_json::to_string(&data).unwrap()).unwrap();
+        assert_import_fails_without_inserting(file.path());
+    }
+
+    #[test]
+    fn test_import_stats_summary_contains_all_numbers() {
+        let stats = ImportStats {
+            total_commands: 11,
+            imported: 22,
+            skipped: 33,
+            updated: 44,
+        };
+        let summary = stats.summary();
+        for n in ["11", "22", "33", "44"] {
+            assert!(summary.contains(n), "missing {n} in {summary}");
+        }
     }
 
     #[test]
