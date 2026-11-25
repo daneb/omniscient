@@ -240,4 +240,109 @@ mod tests {
             .to_string_lossy()
             .ends_with(".omniscient/history.db"));
     }
+
+    /// Serialises tests that point `HOME` at a temp dir; the environment is
+    /// process-global and `Config::home_dir` reads it.
+    static HOME_LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
+
+    /// Runs `f` with `HOME` set to a fresh temp dir, restoring it afterwards.
+    fn with_temp_home<F: FnOnce(&std::path::Path)>(f: F) {
+        let _guard = HOME_LOCK.lock().unwrap_or_else(|e| e.into_inner());
+        let tmp = tempfile::tempdir().unwrap();
+        let old = std::env::var_os("HOME");
+        std::env::set_var("HOME", tmp.path());
+        let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| f(tmp.path())));
+        match old {
+            Some(v) => std::env::set_var("HOME", v),
+            None => std::env::remove_var("HOME"),
+        }
+        if let Err(e) = result {
+            std::panic::resume_unwind(e);
+        }
+    }
+
+    #[test]
+    fn test_omniscient_dir_is_under_home() {
+        with_temp_home(|home| {
+            assert_eq!(Config::omniscient_dir().unwrap(), home.join(".omniscient"));
+        });
+    }
+
+    #[test]
+    fn test_ensure_directories_creates_db_and_failure_log_parents() {
+        with_temp_home(|home| {
+            let mut config = Config::default();
+            config.storage.path = "~/nested/db/history.db".to_string();
+
+            config.ensure_directories().unwrap();
+
+            assert!(home.join(".omniscient").is_dir());
+            assert!(config.database_path().unwrap().parent().unwrap().is_dir());
+            assert!(config
+                .failure_log_path()
+                .unwrap()
+                .parent()
+                .unwrap()
+                .is_dir());
+        });
+    }
+
+    #[test]
+    fn test_ensure_directories_succeeds_when_already_present() {
+        with_temp_home(|_| {
+            let config = Config::default();
+            config.ensure_directories().unwrap();
+            config.ensure_directories().unwrap();
+        });
+    }
+
+    #[test]
+    fn test_ensure_directories_with_absolute_db_path() {
+        with_temp_home(|home| {
+            let mut config = Config::default();
+            let db = home.join("elsewhere").join("history.db");
+            config.storage.path = db.to_string_lossy().into_owned();
+
+            config.ensure_directories().unwrap();
+
+            assert!(home.join("elsewhere").is_dir());
+        });
+    }
+
+    #[test]
+    fn test_failure_log_path_expands_tilde() {
+        with_temp_home(|home| {
+            let config = Config::default();
+            assert_eq!(
+                config.failure_log_path().unwrap(),
+                home.join(".omniscient").join("capture-failures.log")
+            );
+        });
+    }
+
+    #[test]
+    fn test_failure_log_path_keeps_absolute_path() {
+        let mut config = Config::default();
+        config.storage.path = "/var/data/history.db".to_string();
+        assert_eq!(
+            config.failure_log_path().unwrap(),
+            PathBuf::from("/var/data/capture-failures.log")
+        );
+    }
+
+    #[test]
+    fn test_database_path_tilde_and_absolute() {
+        with_temp_home(|home| {
+            let mut config = Config::default();
+            assert_eq!(
+                config.database_path().unwrap(),
+                home.join(".omniscient").join("history.db")
+            );
+            config.storage.path = "/var/data/history.db".to_string();
+            assert_eq!(
+                config.database_path().unwrap(),
+                PathBuf::from("/var/data/history.db")
+            );
+        });
+    }
 }
